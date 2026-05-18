@@ -23,7 +23,9 @@ export class BlogsService {
     return this.blogsMapper.toResponseView(blog);
   }
 
-  async findAll(paginationInput: PaginationInput): Promise<PaginationResult> {
+  async findAll(
+    paginationInput: PaginationInput,
+  ): Promise<PaginationResult<BlogResponseDto>> {
     const { blogs, totalCount } = await this.blogsRepo.findAll(paginationInput);
     return this.blogsMapper.toResponsePaginatedView(
       blogs,

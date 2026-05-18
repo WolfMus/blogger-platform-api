@@ -40,7 +40,7 @@ export class BlogsController {
   @Get()
   async getAllBlogs(
     @Query() paginationInput: PaginationInput,
-  ): Promise<PaginationResult> {
+  ): Promise<PaginationResult<BlogResponseDto>> {
     const blogs = await this.blogsService.findAll(paginationInput);
     return blogs;
   }
@@ -73,4 +73,13 @@ export class BlogsController {
   async deleteBlog(@Param('id') id: number): Promise<void> {
     return await this.blogsService.delete(id);
   }
+
+  // ======== POSTS ========
+  // GET ALL POSTS BY BLOG ID WITH PAGINATION
+  // @Get('/:id')
+  // async getAllPostsByBlogId(@Param('id') blogId: string): void {
+  //   return;
+  // }
+
+  // CREATE NEW POST FOR SPECIFIED BLOG
 }

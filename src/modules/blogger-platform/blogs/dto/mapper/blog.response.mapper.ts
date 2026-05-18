@@ -19,7 +19,7 @@ export class BlogMapper {
     blogs: BlogDocument[],
     paginationInput: PaginationInput,
     totalCount: number,
-  ): PaginationResult {
+  ): PaginationResult<BlogResponseDto> {
     return {
       pagesCount: Math.ceil(totalCount / paginationInput.pageSize),
       page: paginationInput.pageNumber,

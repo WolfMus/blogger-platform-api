@@ -1,7 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { BlogResponseDto } from '../../modules/blogger-platform/blogs/dto/blog.response.dto';
+import { PostResponseDto } from '../../modules/blogger-platform/posts/dto/post.response.dto';
 
-export class PaginationResult {
+type AllowedReponseDto = BlogResponseDto | PostResponseDto;
+
+export class PaginationResult<T extends AllowedReponseDto> {
   @ApiProperty({})
   pagesCount: number;
 
@@ -14,6 +17,6 @@ export class PaginationResult {
   @ApiProperty({})
   totalCount: number;
 
-  @ApiProperty({ type: [BlogResponseDto] })
-  items: BlogResponseDto[];
+  @ApiProperty({ isArray: true })
+  items: T[];
 }
