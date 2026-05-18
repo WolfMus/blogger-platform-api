@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import {
   ApiNoContentResponse,
@@ -17,6 +18,8 @@ import {
 import { CreatePostRequestDto } from '../dto/create-post.request.dto';
 import { PostsService } from '../application/posts.service';
 import { PostResponseDto } from '../dto/post.response.dto';
+import { PaginationResult } from '../../../../core/dto/pagination-result.dto';
+import { PaginationInput } from '../../../../core/dto/pagination.dto';
 
 @ApiTags('Posts')
 @Controller('posts')
@@ -42,6 +45,20 @@ export class PostsController {
     return await this.postsService.findOne(id);
   }
 
+  // FIND ALL POSTS WITH PAGINATION
+  @ApiOperation({ summary: 'Returns posts with pagination' })
+  @ApiOkResponse({
+    type: PaginationResult<PostResponseDto>,
+    description: 'Success',
+  })
+  @Get()
+  async getAllPosts(
+    @Query() paginationInput: PaginationInput,
+  ): Promise<PaginationResult<PostResponseDto>> {
+    const posts = await this.postsService.findAll(paginationInput);
+    return posts;
+  }
+
   // UPDATE POST BY ID
   @ApiOperation({ summary: 'Update blog by id' })
   @ApiNoContentResponse({ description: 'No Content' })
@@ -63,4 +80,7 @@ export class PostsController {
   async deletePost(@Param('id') id: string): Promise<void> {
     return await this.postsService.delete(id);
   }
+
+  // ======== COMMENTS ========
+  // GET ALL COMMENTS BY POSTID
 }

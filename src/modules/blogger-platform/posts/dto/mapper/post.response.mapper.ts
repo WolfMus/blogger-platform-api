@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { LikeStatus, PostDocument } from '../../domain/post.entity';
 import { PostResponseDto } from '../post.response.dto';
+import { PaginationInput } from '../../../../../core/dto/pagination.dto';
+import { PaginationResult } from '../../../../../core/dto/pagination-result.dto';
 
 @Injectable()
 export class PostMapper {
@@ -19,6 +21,20 @@ export class PostMapper {
         myStatus: post.extendedLikesInfo.myStatus as LikeStatus,
         newestLikes: [],
       },
+    };
+  }
+
+  toResponsePaginatedView(
+    posts: PostDocument[],
+    totalCount: number,
+    paginationInput: PaginationInput,
+  ): PaginationResult<PostResponseDto> {
+    return {
+      pagesCount: Math.ceil(totalCount / paginationInput.pageSize),
+      page: paginationInput.pageNumber,
+      pageSize: paginationInput.pageSize,
+      totalCount: posts.length,
+      items: posts.map((post) => this.toReponseView(post)),
     };
   }
 }

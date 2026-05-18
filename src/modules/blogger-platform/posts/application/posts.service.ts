@@ -5,6 +5,8 @@ import { CreatePostRequestDto } from '../dto/create-post.request.dto';
 import { PostsRepository } from '../infrastructure/posts.repository';
 import { PostMapper } from '../dto/mapper/post.response.mapper';
 import { PostResponseDto } from '../dto/post.response.dto';
+import { PaginationInput } from '../../../../core/dto/pagination.dto';
+import { PaginationResult } from '../../../../core/dto/pagination-result.dto';
 
 @Injectable()
 export class PostsService {
@@ -14,6 +16,17 @@ export class PostsService {
     private postsRepo: PostsRepository,
     private postMapper: PostMapper,
   ) {}
+
+  async findAll(
+    paginationInput: PaginationInput,
+  ): Promise<PaginationResult<PostResponseDto>> {
+    const { posts, totalCount } = await this.postsRepo.findAll(paginationInput);
+    return this.postMapper.toResponsePaginatedView(
+      posts,
+      totalCount,
+      paginationInput,
+    );
+  }
 
   async findOne(id: string): Promise<PostResponseDto> {
     const post = await this.postsRepo.findById(id);
