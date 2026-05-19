@@ -1,12 +1,15 @@
-export enum SortDirection {
-  Asc = 'asc',
-  Desc = 'desc',
-}
+import { ApiProperty } from '@nestjs/swagger';
 
-export class PaginationInput {
-  searchNameTerm: string;
-  sortBy: string;
-  sortDirection: SortDirection;
-  pageNumber: number;
+export class Pagination {
+  @ApiProperty({})
+  pagesCount: number;
+
+  @ApiProperty({})
+  page: number;
+
+  @ApiProperty({})
   pageSize: number;
+
+  @ApiProperty({})
+  totalCount: number;
 }

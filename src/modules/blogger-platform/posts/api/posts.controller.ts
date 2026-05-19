@@ -18,13 +18,20 @@ import {
 import { CreatePostRequestDto } from '../dto/create-post.request.dto';
 import { PostsService } from '../application/posts.service';
 import { PostResponseDto } from '../dto/post.response.dto';
-import { PaginationResult } from '../../../../core/dto/pagination-result.dto';
-import { PaginationInput } from '../../../../core/dto/pagination.dto';
+import { PaginationInput } from '../../../../core/dto/pagination.request.dto';
+import { PaginatedPostResponseDto } from '../dto/post-paginated-view.response.dto';
+import { PaginatedCommentResponseDto } from '../../comments/dto/paginated-comment.response.dto';
+import { CommentsService } from '../../comments/application/comments.service';
+import { BlogsService } from '../../blogs/application/blogs.service';
 
 @ApiTags('Posts')
 @Controller('posts')
 export class PostsController {
-  constructor(private postsService: PostsService) {}
+  constructor(
+    private blogsService: BlogsService,
+    private postsService: PostsService,
+    private commentsService: CommentsService,
+  ) {}
 
   // CREATE POST
   @ApiOperation({ summary: 'Returns created post' })
@@ -33,7 +40,8 @@ export class PostsController {
   async createPost(
     @Body() dto: CreatePostRequestDto,
   ): Promise<PostResponseDto> {
-    return await this.postsService.create(dto);
+    const blog = await this.blogsService.findOne(dto.blogId);
+    return await this.postsService.create(dto, blog.name);
   }
 
   // FIND POST BY ID
@@ -48,13 +56,13 @@ export class PostsController {
   // FIND ALL POSTS WITH PAGINATION
   @ApiOperation({ summary: 'Returns posts with pagination' })
   @ApiOkResponse({
-    type: PaginationResult<PostResponseDto>,
+    type: PaginatedPostResponseDto,
     description: 'Success',
   })
   @Get()
   async getAllPosts(
     @Query() paginationInput: PaginationInput,
-  ): Promise<PaginationResult<PostResponseDto>> {
+  ): Promise<PaginatedPostResponseDto> {
     const posts = await this.postsService.findAll(paginationInput);
     return posts;
   }
@@ -83,4 +91,18 @@ export class PostsController {
 
   // ======== COMMENTS ========
   // GET ALL COMMENTS BY POSTID
+  @ApiOperation({
+    summary: 'Returns all comments for specific post with pagination',
+  })
+  @ApiOkResponse({
+    type: PaginatedCommentResponseDto,
+    description: 'Success',
+  })
+  @Get('/:id/comments')
+  async getAllForPost(
+    @Query() paginationInput: PaginationInput,
+    @Param('/:id') postId: string,
+  ): Promise<PaginatedCommentResponseDto> {
+    return this.commentsService.findAllForPost(paginationInput, postId);
+  }
 }

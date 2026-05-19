@@ -2,7 +2,7 @@ import { Injectable, NotFoundException, Post } from '@nestjs/common';
 import { PostDocument } from '../domain/post.entity';
 import type { PostModelType } from '../domain/post.entity';
 import { InjectModel } from '@nestjs/mongoose';
-import { PaginationInput } from '../../../../core/dto/pagination.dto';
+import { PaginationInput } from '../../../../core/dto/pagination.request.dto';
 
 @Injectable()
 export class PostsRepository {
@@ -17,6 +17,24 @@ export class PostsRepository {
     const skip = (paginationInput.pageNumber - 1) * paginationInput.pageSize;
 
     const posts = await this.PostModel.find()
+      .sort(paginationInput.sortDirection)
+      .skip(skip)
+      .limit(paginationInput.pageSize);
+
+    const totalCount = await this.PostModel.countDocuments();
+
+    return { posts, totalCount };
+  }
+
+  async findAllByBlogId(
+    paginationInput: PaginationInput,
+    blogId: string,
+  ): Promise<{ posts: PostDocument[]; totalCount: number }> {
+    const skip = (paginationInput.pageNumber - 1) * paginationInput.pageSize;
+
+    const posts = await this.PostModel.find({
+      blogId: blogId,
+    })
       .sort(paginationInput.sortDirection)
       .skip(skip)
       .limit(paginationInput.pageSize);

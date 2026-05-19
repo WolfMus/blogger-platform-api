@@ -10,37 +10,45 @@ import {
 } from '@nestjs/common';
 import { CreateBlogRequestDto } from '../dto/create-blog.request.dto';
 import { BlogsService } from '../application/blogs.service';
-import { PaginationInput } from '../../../../core/dto/pagination.dto';
-import { PaginationResult } from '../../../../core/dto/pagination-result.dto';
+import { PaginationInput } from '../../../../core/dto/pagination.request.dto';
 import { BlogResponseDto } from '../dto/blog.response.dto';
 import {
+  ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
+import { PostsService } from '../../posts/application/posts.service';
+import { PaginatedBlogResponseDto } from '../dto/blog-paginated-view.response.dto';
+import { PaginatedPostResponseDto } from '../../posts/dto/post-paginated-view.response.dto';
+import { PostResponseDto } from '../../posts/dto/post.response.dto';
+import { CreatePostForBlogRequestDto } from '../../posts/dto/create-post.request.dto';
 
 @ApiTags('Blogs')
 @Controller('blogs')
 export class BlogsController {
-  constructor(private blogsService: BlogsService) {}
+  constructor(
+    private blogsService: BlogsService,
+    private postsService: PostsService,
+  ) {}
 
   // GET BLOG BY ID
   @ApiOperation({ summary: 'Returns blog by id' })
   @ApiOkResponse({ type: BlogResponseDto, description: 'Returns blog' })
   @ApiNotFoundResponse({ description: 'Blog not found' })
   @Get('/:id')
-  async getOneBlog(@Param('id') id: number): Promise<BlogResponseDto> {
+  async getOneBlog(@Param('id') id: string): Promise<BlogResponseDto> {
     return await this.blogsService.findOne(id);
   }
 
   // GET BLOGS WITH PAGINATION
   @ApiOperation({ summary: 'Returns blogs with pagination' })
-  @ApiOkResponse({ type: PaginationResult, description: 'Success' })
+  @ApiOkResponse({ type: PaginatedBlogResponseDto, description: 'Success' })
   @Get()
   async getAllBlogs(
     @Query() paginationInput: PaginationInput,
-  ): Promise<PaginationResult<BlogResponseDto>> {
+  ): Promise<PaginatedBlogResponseDto> {
     const blogs = await this.blogsService.findAll(paginationInput);
     return blogs;
   }
@@ -59,7 +67,7 @@ export class BlogsController {
   @ApiNotFoundResponse({ description: 'Not Found' })
   @Put('/:id')
   async updateBlog(
-    @Param('id') id: number,
+    @Param('id') id: string,
     @Body() dto: CreateBlogRequestDto,
   ): Promise<void> {
     return await this.blogsService.update(dto, id);
@@ -76,10 +84,41 @@ export class BlogsController {
 
   // ======== POSTS ========
   // GET ALL POSTS BY BLOG ID WITH PAGINATION
-  // @Get('/:id')
-  // async getAllPostsByBlogId(@Param('id') blogId: string): void {
-  //   return;
-  // }
+  @ApiOperation({ summary: 'Returns all posts for specific blog' })
+  @ApiOkResponse({
+    type: PaginatedPostResponseDto,
+    description: 'Success',
+  })
+  @ApiNotFoundResponse({ description: 'Not Found' })
+  @Get('/:id/posts')
+  async getAllPostsByBlogId(
+    @Query() paginationInput: PaginationInput,
+    @Param('id') blogId: string,
+  ): Promise<PaginatedPostResponseDto> {
+    await this.blogsService.findOne(blogId);
+    const posts = await this.postsService.findAllByBlogId(
+      paginationInput,
+      blogId,
+    );
+    return posts;
+  }
 
   // CREATE NEW POST FOR SPECIFIED BLOG
+  @ApiOperation({ summary: 'Creates new post for specific blog' })
+  @ApiCreatedResponse({
+    type: PostResponseDto,
+    description: 'New post for specific blog was created',
+  })
+  @ApiNotFoundResponse({
+    description: 'Blog Not Found',
+  })
+  @Post('/:id/posts')
+  async createPostByBlogId(
+    @Param('id') blogId: string,
+    @Body() dto: CreatePostForBlogRequestDto,
+  ): Promise<PostResponseDto> {
+    const blog = await this.blogsService.findOne(blogId);
+    const post = this.postsService.createForBlog(dto, blog.id, blog.name);
+    return post;
+  }
 }

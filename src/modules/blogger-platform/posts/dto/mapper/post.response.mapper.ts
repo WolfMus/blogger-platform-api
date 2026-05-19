@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { LikeStatus, PostDocument } from '../../domain/post.entity';
 import { PostResponseDto } from '../post.response.dto';
-import { PaginationInput } from '../../../../../core/dto/pagination.dto';
-import { PaginationResult } from '../../../../../core/dto/pagination-result.dto';
+import { PaginationInput } from '../../../../../core/dto/pagination.request.dto';
+import { PaginatedPostResponseDto } from '../post-paginated-view.response.dto';
 
 @Injectable()
 export class PostMapper {
-  toReponseView(post: PostDocument): PostResponseDto {
+  toResponseView(post: PostDocument): PostResponseDto {
     return {
       id: post._id.toString(),
       title: post.title,
@@ -28,13 +28,13 @@ export class PostMapper {
     posts: PostDocument[],
     totalCount: number,
     paginationInput: PaginationInput,
-  ): PaginationResult<PostResponseDto> {
+  ): PaginatedPostResponseDto {
     return {
       pagesCount: Math.ceil(totalCount / paginationInput.pageSize),
       page: paginationInput.pageNumber,
       pageSize: paginationInput.pageSize,
       totalCount: posts.length,
-      items: posts.map((post) => this.toReponseView(post)),
+      items: posts.map((post) => this.toResponseView(post)),
     };
   }
 }

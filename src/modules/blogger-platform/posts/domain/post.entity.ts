@@ -77,16 +77,26 @@ export class Post {
   updatedAt: Date;
 
   @ApiProperty({ type: ExtendedLikesInfo })
-  @Prop({ type: ExtendedLikesInfo, required: true })
+  @Prop({ type: ExtendedLikesInfo })
   extendedLikesInfo: ExtendedLikesInfo;
 
-  static createInstance(dto: CreatePostRequestDto): PostDocument {
+  static createInstance(
+    dto: CreatePostRequestDto,
+    blogName: string,
+  ): PostDocument {
     const post = new this();
     post.title = dto.title;
     post.shortDescription = dto.shortDescription;
     post.content = dto.content;
     post.blogId = dto.blogId;
+    post.blogName = blogName;
     post.createdAt = new Date();
+    post.extendedLikesInfo = {
+      likesCount: 0,
+      dislikesCount: 0,
+      myStatus: LikeStatus.None,
+      newestLikes: [],
+    };
     return post as PostDocument;
   }
 

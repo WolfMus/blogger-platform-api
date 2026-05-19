@@ -5,9 +5,9 @@ import { Blog } from '../domain/blog.entity';
 import type { BlogModelType } from '../domain/blog.entity';
 import { BlogsRepository } from '../infrastructure/blogs.repository';
 import { BlogMapper } from '../dto/mapper/blog.response.mapper';
-import { PaginationInput } from '../../../../core/dto/pagination.dto';
-import { PaginationResult } from '../../../../core/dto/pagination-result.dto';
+import { PaginationInput } from '../../../../core/dto/pagination.request.dto';
 import { BlogResponseDto } from '../dto/blog.response.dto';
+import { PaginatedBlogResponseDto } from '../dto/blog-paginated-view.response.dto';
 
 @Injectable()
 export class BlogsService {
@@ -18,14 +18,14 @@ export class BlogsService {
     private blogsMapper: BlogMapper,
   ) {}
 
-  async findOne(id: number): Promise<BlogResponseDto> {
-    const blog = await this.blogsRepo.findOne(id);
+  async findOne(id: string): Promise<BlogResponseDto> {
+    const blog = await this.blogsRepo.findById(id);
     return this.blogsMapper.toResponseView(blog);
   }
 
   async findAll(
     paginationInput: PaginationInput,
-  ): Promise<PaginationResult<BlogResponseDto>> {
+  ): Promise<PaginatedBlogResponseDto> {
     const { blogs, totalCount } = await this.blogsRepo.findAll(paginationInput);
     return this.blogsMapper.toResponsePaginatedView(
       blogs,
@@ -40,8 +40,8 @@ export class BlogsService {
     return;
   }
 
-  async update(dto: CreateBlogRequestDto, id: number): Promise<void> {
-    const blog = await this.blogsRepo.findOne(id);
+  async update(dto: CreateBlogRequestDto, id: string): Promise<void> {
+    const blog = await this.blogsRepo.findById(id);
     blog.updateBlog(dto);
     await this.blogsRepo.save(blog);
     return;

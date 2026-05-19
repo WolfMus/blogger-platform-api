@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { Blog, BlogDocument } from '../domain/blog.entity';
 import type { BlogModelType } from '../domain/blog.entity';
 import { InjectModel } from '@nestjs/mongoose';
-import { PaginationInput } from '../../../../core/dto/pagination.dto';
+import { PaginationInput } from '../../../../core/dto/pagination.request.dto';
 
 @Injectable()
 export class BlogsRepository {
@@ -11,7 +11,7 @@ export class BlogsRepository {
     private BlogModel: BlogModelType,
   ) {}
 
-  async findOne(id: number): Promise<BlogDocument> {
+  async findById(id: string): Promise<BlogDocument> {
     const blog = await this.BlogModel.findById(id);
     if (!blog) {
       throw new NotFoundException('id', 'Blog not found');
