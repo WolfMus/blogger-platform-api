@@ -101,8 +101,8 @@ export class PostsController {
   @Get('/:id/comments')
   async getAllForPost(
     @Query() paginationInput: PaginationInput,
-    @Param('/:id') postId: string,
+    @Param('id') id: string,
   ): Promise<PaginatedCommentResponseDto> {
-    return this.commentsService.findAllForPost(paginationInput, postId);
+    return this.commentsService.findAllForPost(paginationInput, id);
   }
 }

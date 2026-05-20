@@ -20,10 +20,12 @@ export class BlogMapper {
     paginationInput: PaginationInput,
     totalCount: number,
   ): PaginatedBlogResponseDto {
+    const pageNumber = paginationInput.pageNumber ?? 1;
+    const pageSize = paginationInput.pageSize ?? 10;
     return {
-      pagesCount: Math.ceil(totalCount / paginationInput.pageSize),
-      page: paginationInput.pageNumber,
-      pageSize: paginationInput.pageSize,
+      pagesCount: Math.ceil(totalCount / pageSize),
+      page: pageNumber,
+      pageSize: pageSize,
       totalCount: blogs.length,
       items: blogs.map((blog) => this.toResponseView(blog)),
     };

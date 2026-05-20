@@ -29,10 +29,12 @@ export class PostMapper {
     totalCount: number,
     paginationInput: PaginationInput,
   ): PaginatedPostResponseDto {
+    const pageNumber = paginationInput.pageNumber ?? 1;
+    const pageSize = paginationInput.pageSize ?? 10;
     return {
-      pagesCount: Math.ceil(totalCount / paginationInput.pageSize),
-      page: paginationInput.pageNumber,
-      pageSize: paginationInput.pageSize,
+      pagesCount: Math.ceil(totalCount / pageSize),
+      page: pageNumber,
+      pageSize: pageSize,
       totalCount: posts.length,
       items: posts.map((post) => this.toResponseView(post)),
     };

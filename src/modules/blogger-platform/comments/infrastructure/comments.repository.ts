@@ -2,7 +2,10 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Comment, CommentDocument } from '../domain/comment.entity';
 import type { CommentModelType } from '../domain/comment.entity';
-import { PaginationInput } from '../../../../core/dto/pagination.request.dto';
+import {
+  PaginationInput,
+  SortDirection,
+} from '../../../../core/dto/pagination.request.dto';
 
 @Injectable()
 export class CommentsRepository {
@@ -22,12 +25,21 @@ export class CommentsRepository {
   async findAll(
     paginationInput: PaginationInput,
   ): Promise<{ comments: CommentDocument[]; totalCount: number }> {
-    const skip = (paginationInput.pageNumber - 1) * paginationInput.pageSize;
+    const sortBy = paginationInput.sortBy ?? 'createdAt';
+    let sortDirection = paginationInput.sortDirection;
+    if (!paginationInput.sortDirection) {
+      sortDirection = SortDirection.Asc;
+    }
+    // const sortDirection =
+    //   paginationInput.sortDirection === SortDirection.Asc ? 1 : -1;
+    const pageNumber = paginationInput.pageNumber ?? 1;
+    const pageSize = paginationInput.pageSize ?? 10;
+    const skip = (pageNumber - 1) * pageSize;
 
     const comments = await this.CommentModel.find()
-      .sort(paginationInput.sortDirection)
+      .sort({ [sortBy]: sortDirection })
       .skip(skip)
-      .limit(paginationInput.pageSize);
+      .limit(pageSize);
 
     const totalCount = await this.CommentModel.countDocuments();
 
@@ -38,12 +50,21 @@ export class CommentsRepository {
     paginationInput: PaginationInput,
     postId: string,
   ): Promise<{ comments: CommentDocument[]; totalCount: number }> {
-    const skip = (paginationInput.pageNumber - 1) * paginationInput.pageSize;
+    const sortBy = paginationInput.sortBy ?? 'createdAt';
+    let sortDirection = paginationInput.sortDirection;
+    if (!paginationInput.sortDirection) {
+      sortDirection = SortDirection.Asc;
+    }
+    // const sortDirection =
+    //   paginationInput.sortDirection === SortDirection.Asc ? 1 : -1;
+    const pageNumber = paginationInput.pageNumber ?? 1;
+    const pageSize = paginationInput.pageSize ?? 10;
 
+    const skip = (pageNumber - 1) * pageSize;
     const comments = await this.CommentModel.find({ postId: postId })
-      .sort(paginationInput.sortDirection)
+      .sort({ [sortBy]: sortDirection })
       .skip(skip)
-      .limit(paginationInput.pageSize);
+      .limit(pageSize);
 
     const totalCount = await this.CommentModel.countDocuments();
 
