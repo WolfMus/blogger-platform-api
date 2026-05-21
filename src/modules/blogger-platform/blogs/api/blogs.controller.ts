@@ -57,7 +57,9 @@ export class BlogsController {
   @ApiOperation({ summary: 'Create new blog' })
   @ApiOkResponse({ description: 'New blog created' })
   @Post()
-  async createBlog(@Body() dto: CreateBlogRequestDto): Promise<void> {
+  async createBlog(
+    @Body() dto: CreateBlogRequestDto,
+  ): Promise<BlogResponseDto> {
     return await this.blogsService.create(dto);
   }
 
