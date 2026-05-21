@@ -31,8 +31,16 @@ export class BlogsRepository {
     const pageNumber = paginationInput.pageNumber ?? 1;
     const pageSize = paginationInput.pageSize ?? 10;
 
+    const filter: Record<string, any> = {};
+    if (paginationInput.searchNameTerm) {
+      filter.name = {
+        $regex: paginationInput.searchNameTerm,
+        $options: 'i',
+      };
+    }
+
     const skip = (pageNumber - 1) * pageSize;
-    const blogs = await this.BlogModel.find()
+    const blogs = await this.BlogModel.find(filter)
       .sort({ [sortBy]: sortDirection })
       .skip(skip)
       .limit(pageSize);

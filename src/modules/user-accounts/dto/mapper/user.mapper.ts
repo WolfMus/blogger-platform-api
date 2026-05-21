@@ -21,8 +21,8 @@ export class UserMapper {
     const pageSize = pagination.pageSize ?? 10;
     return {
       pagesCount: Math.ceil(totalCount / pageSize),
-      page: pageNumber,
-      pageSize: pageSize,
+      page: +pageNumber,
+      pageSize: +pageSize,
       totalCount: totalCount,
       items: users.map((user) => this.toResponseView(user)),
     };

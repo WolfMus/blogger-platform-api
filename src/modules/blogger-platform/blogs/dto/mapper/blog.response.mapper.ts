@@ -22,7 +22,6 @@ export class BlogMapper {
   ): PaginatedBlogResponseDto {
     const pageNumber = paginationInput.pageNumber ?? 1;
     const pageSize = paginationInput.pageSize ?? 10;
-    console.log(pageNumber, pageSize);
     return {
       pagesCount: Math.ceil(totalCount / pageSize),
       page: +pageNumber,

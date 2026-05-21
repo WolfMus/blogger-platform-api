@@ -33,8 +33,8 @@ export class PostMapper {
     const pageSize = paginationInput.pageSize ?? 10;
     return {
       pagesCount: Math.ceil(totalCount / pageSize),
-      page: pageNumber,
-      pageSize: pageSize,
+      page: +pageNumber,
+      pageSize: +pageSize,
       totalCount: totalCount,
       items: posts.map((post) => this.toResponseView(post)),
     };

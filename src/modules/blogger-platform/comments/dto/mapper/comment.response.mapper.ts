@@ -23,8 +23,8 @@ export class CommentMapper {
     const pageSize = paginationInput.pageSize ?? 10;
     return {
       pagesCount: Math.ceil(totalCount / pageSize),
-      page: pageNumber,
-      pageSize: pageSize,
+      page: +pageNumber,
+      pageSize: +pageSize,
       totalCount: totalCount,
       items: comments.map((comment) => this.toResponseView(comment)),
     };
