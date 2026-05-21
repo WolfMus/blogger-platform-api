@@ -26,12 +26,8 @@ export class UserRepository {
     totalCount: number;
   }> {
     const sortBy = pagination.sortBy ?? 'createdAt';
-    let sortDirection = pagination.sortDirection;
-    if (!pagination.sortDirection) {
-      sortDirection = SortDirection.Asc;
-    }
-    // const sortDirection =
-    //   paginationInput.sortDirection === SortDirection.Asc ? 1 : -1;
+    const sortDirection =
+      pagination.sortDirection === SortDirection.Asc ? 1 : -1;
     const pageNumber = pagination.pageNumber ?? 1;
     const pageSize = pagination.pageSize ?? 10;
 

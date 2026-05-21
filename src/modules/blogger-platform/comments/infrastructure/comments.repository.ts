@@ -27,7 +27,7 @@ export class CommentsRepository {
   ): Promise<{ comments: CommentDocument[]; totalCount: number }> {
     const sortBy = paginationInput.sortBy ?? 'createdAt';
     const sortDirection =
-      paginationInput.sortDirection === SortDirection.Desc ? -1 : 1;
+      paginationInput.sortDirection === SortDirection.Asc ? 1 : -1;
     const pageNumber = paginationInput.pageNumber ?? 1;
     const pageSize = paginationInput.pageSize ?? 10;
     const skip = (pageNumber - 1) * pageSize;
@@ -48,7 +48,7 @@ export class CommentsRepository {
   ): Promise<{ comments: CommentDocument[]; totalCount: number }> {
     const sortBy = paginationInput.sortBy ?? 'createdAt';
     const sortDirection =
-      paginationInput.sortDirection === SortDirection.Desc ? -1 : 1;
+      paginationInput.sortDirection === SortDirection.Asc ? 1 : -1;
     const pageNumber = paginationInput.pageNumber ?? 1;
     const pageSize = paginationInput.pageSize ?? 10;
 
