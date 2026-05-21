@@ -19,7 +19,7 @@ export class PostsRepository {
   ): Promise<{ posts: PostDocument[]; totalCount: number }> {
     const sortBy = paginationInput.sortBy ?? 'createdAt';
     const sortDirection =
-      paginationInput.sortDirection === SortDirection.Desc ? -1 : 1;
+      paginationInput.sortDirection === SortDirection.Asc ? 1 : -1;
     const pageNumber = paginationInput.pageNumber ?? 1;
     const pageSize = paginationInput.pageSize ?? 10;
 
