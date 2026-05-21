@@ -7,6 +7,8 @@ import type { PostModelType } from '../../modules/blogger-platform/posts/domain/
 import { Comment } from '../../modules/blogger-platform/comments/domain/comment.entity';
 import type { CommentModelType } from '../../modules/blogger-platform/comments/domain/comment.entity';
 import { ApiNoContentResponse } from '@nestjs/swagger';
+import { User } from '../../modules/user-accounts/domain/user.entity';
+import type { UserModelType } from '../../modules/user-accounts/domain/user.entity';
 
 @Controller('testing')
 export class TestingController {
@@ -17,6 +19,8 @@ export class TestingController {
     private PostModel: PostModelType,
     @InjectModel(Comment.name)
     private CommentModel: CommentModelType,
+    @InjectModel(User.name)
+    private UserModel: UserModelType,
   ) {}
   @ApiNoContentResponse()
   @HttpCode(HttpStatus.NO_CONTENT)
