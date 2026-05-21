@@ -1,7 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { CommentResponseDto } from '../dto/comment.response.dto';
-import { InjectModel } from '@nestjs/mongoose';
-import { Comment } from '../domain/comment.entity';
 import { CommentsRepository } from '../infrastructure/comments.repository';
 import { CommentMapper } from '../dto/mapper/comment.response.mapper';
 import { PaginationInput } from '../../../../core/dto/pagination.request.dto';
@@ -10,7 +8,6 @@ import { PaginatedCommentResponseDto } from '../dto/paginated-comment.response.d
 @Injectable()
 export class CommentsService {
   constructor(
-    @InjectModel(Comment.name)
     private commentsRepo: CommentsRepository,
     private commentMapper: CommentMapper,
   ) {}

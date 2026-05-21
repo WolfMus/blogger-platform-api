@@ -111,6 +111,6 @@ export class PostsController {
     @Query() paginationInput: PaginationInput,
     @Param('id') id: string,
   ): Promise<PaginatedCommentResponseDto> {
-    return this.commentsService.findAllForPost(paginationInput, id);
+    return await this.commentsService.findAllForPost(paginationInput, id);
   }
 }

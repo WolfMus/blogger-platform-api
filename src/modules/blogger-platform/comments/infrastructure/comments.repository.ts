@@ -58,7 +58,9 @@ export class CommentsRepository {
       .skip(skip)
       .limit(pageSize);
 
-    const totalCount = await this.CommentModel.countDocuments();
+    const totalCount = await this.CommentModel.countDocuments({
+      postId: postId,
+    });
 
     return { comments, totalCount };
   }

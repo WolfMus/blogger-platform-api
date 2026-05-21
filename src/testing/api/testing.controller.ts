@@ -29,6 +29,7 @@ export class TestingController {
     await this.BlogModel.deleteMany();
     await this.PostModel.deleteMany();
     await this.CommentModel.deleteMany();
+    await this.UserModel.deleteMany();
     return;
   }
 }
