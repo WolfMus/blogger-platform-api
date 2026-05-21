@@ -34,10 +34,10 @@ export class BlogsService {
     );
   }
 
-  async create(dto: CreateBlogRequestDto): Promise<void> {
+  async create(dto: CreateBlogRequestDto): Promise<BlogResponseDto> {
     const blog = this.BlogModel.createInstance(dto);
     await this.blogsRepo.save(blog);
-    return;
+    return this.blogsMapper.toResponseView(blog);
   }
 
   async update(dto: CreateBlogRequestDto, id: string): Promise<void> {
