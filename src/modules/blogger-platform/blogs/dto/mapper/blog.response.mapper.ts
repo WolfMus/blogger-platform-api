@@ -26,7 +26,7 @@ export class BlogMapper {
       pagesCount: Math.ceil(totalCount / pageSize),
       page: pageNumber,
       pageSize: pageSize,
-      totalCount: blogs.length,
+      totalCount: totalCount,
       items: blogs.map((blog) => this.toResponseView(blog)),
     };
   }

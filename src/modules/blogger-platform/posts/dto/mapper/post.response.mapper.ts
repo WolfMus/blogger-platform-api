@@ -35,7 +35,7 @@ export class PostMapper {
       pagesCount: Math.ceil(totalCount / pageSize),
       page: pageNumber,
       pageSize: pageSize,
-      totalCount: posts.length,
+      totalCount: totalCount,
       items: posts.map((post) => this.toResponseView(post)),
     };
   }

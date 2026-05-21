@@ -25,7 +25,7 @@ export class CommentMapper {
       pagesCount: Math.ceil(totalCount / pageSize),
       page: pageNumber,
       pageSize: pageSize,
-      totalCount: comments.length,
+      totalCount: totalCount,
       items: comments.map((comment) => this.toResponseView(comment)),
     };
   }
