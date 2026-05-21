@@ -3,6 +3,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Post,
   Put,
@@ -36,6 +38,7 @@ export class PostsController {
   // CREATE POST
   @ApiOperation({ summary: 'Returns created post' })
   @ApiOkResponse({ type: PostResponseDto, description: 'Post created' })
+  @HttpCode(HttpStatus.CREATED)
   @Post()
   async createPost(
     @Body() dto: CreatePostRequestDto,
@@ -48,6 +51,7 @@ export class PostsController {
   @ApiOperation({ summary: 'Return blog by id' })
   @ApiOkResponse({ type: PostResponseDto, description: 'Success' })
   @ApiNotFoundResponse({ description: 'Post Not Found' })
+  @HttpCode(HttpStatus.OK)
   @Get('/:id')
   async getPost(@Param('id') id: string): Promise<PostResponseDto> {
     return await this.postsService.findOne(id);
@@ -59,6 +63,7 @@ export class PostsController {
     type: PaginatedPostResponseDto,
     description: 'Success',
   })
+  @HttpCode(HttpStatus.OK)
   @Get()
   async getAllPosts(
     @Query() paginationInput: PaginationInput,
@@ -71,6 +76,7 @@ export class PostsController {
   @ApiOperation({ summary: 'Update blog by id' })
   @ApiNoContentResponse({ description: 'No Content' })
   @ApiNotFoundResponse({ description: 'Post Not Found' })
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Put('/:id')
   async updatePost(
     @Param('id') id: string,
@@ -84,6 +90,7 @@ export class PostsController {
   @ApiOperation({ summary: 'Delete post by id' })
   @ApiNoContentResponse({ description: 'No content' })
   @ApiNotFoundResponse({ description: 'Post Not Found' })
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Delete('/:id')
   async deletePost(@Param('id') id: string): Promise<void> {
     return await this.postsService.delete(id);
@@ -98,6 +105,7 @@ export class PostsController {
     type: PaginatedCommentResponseDto,
     description: 'Success',
   })
+  @HttpCode(HttpStatus.OK)
   @Get('/:id/comments')
   async getAllForPost(
     @Query() paginationInput: PaginationInput,

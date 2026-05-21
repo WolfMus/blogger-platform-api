@@ -3,6 +3,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Post,
   Put,
@@ -37,6 +39,7 @@ export class BlogsController {
   @ApiOperation({ summary: 'Returns blog by id' })
   @ApiOkResponse({ type: BlogResponseDto, description: 'Returns blog' })
   @ApiNotFoundResponse({ description: 'Blog not found' })
+  @HttpCode(HttpStatus.OK)
   @Get('/:id')
   async getOneBlog(@Param('id') id: string): Promise<BlogResponseDto> {
     return await this.blogsService.findOne(id);
@@ -45,6 +48,7 @@ export class BlogsController {
   // GET BLOGS WITH PAGINATION
   @ApiOperation({ summary: 'Returns blogs with pagination' })
   @ApiOkResponse({ type: PaginatedBlogResponseDto, description: 'Success' })
+  @HttpCode(HttpStatus.OK)
   @Get()
   async getAllBlogs(
     @Query() paginationInput: PaginationInput,
@@ -56,6 +60,7 @@ export class BlogsController {
   // CREATE NEW BLOG
   @ApiOperation({ summary: 'Create new blog' })
   @ApiOkResponse({ description: 'New blog created' })
+  @HttpCode(HttpStatus.CREATED)
   @Post()
   async createBlog(
     @Body() dto: CreateBlogRequestDto,
@@ -67,6 +72,7 @@ export class BlogsController {
   @ApiOperation({ summary: 'Update existing blog by id with InputModel' })
   @ApiOkResponse({ description: 'No Content' })
   @ApiNotFoundResponse({ description: 'Not Found' })
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Put('/:id')
   async updateBlog(
     @Param('id') id: string,
@@ -79,6 +85,7 @@ export class BlogsController {
   @ApiOperation({ summary: 'Delete blog by id' })
   @ApiOkResponse({ description: 'No Content' })
   @ApiNotFoundResponse({ description: 'Not Found' })
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Delete('/:id')
   async deleteBlog(@Param('id') id: number): Promise<void> {
     return await this.blogsService.delete(id);
@@ -114,6 +121,7 @@ export class BlogsController {
   @ApiNotFoundResponse({
     description: 'Blog Not Found',
   })
+  @HttpCode(HttpStatus.CREATED)
   @Post('/:id/posts')
   async createPostByBlogId(
     @Param('id') blogId: string,

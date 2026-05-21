@@ -1,4 +1,4 @@
-import { Controller, Delete } from '@nestjs/common';
+import { Controller, Delete, HttpCode, HttpStatus } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Blog } from '../../modules/blogger-platform/blogs/domain/blog.entity';
 import type { BlogModelType } from '../../modules/blogger-platform/blogs/domain/blog.entity';
@@ -6,6 +6,7 @@ import { Post } from '../../modules/blogger-platform/posts/domain/post.entity';
 import type { PostModelType } from '../../modules/blogger-platform/posts/domain/post.entity';
 import { Comment } from '../../modules/blogger-platform/comments/domain/comment.entity';
 import type { CommentModelType } from '../../modules/blogger-platform/comments/domain/comment.entity';
+import { ApiNoContentResponse } from '@nestjs/swagger';
 
 @Controller('testing')
 export class TestingController {
@@ -17,6 +18,8 @@ export class TestingController {
     @InjectModel(Comment.name)
     private CommentModel: CommentModelType,
   ) {}
+  @ApiNoContentResponse()
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Delete('/all-data')
   async deleteAllData(): Promise<void> {
     await this.BlogModel.deleteMany();

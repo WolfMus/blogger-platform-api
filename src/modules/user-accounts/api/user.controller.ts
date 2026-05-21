@@ -3,6 +3,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Post,
   Query,
@@ -26,6 +28,7 @@ export class UserController {
   // GET ALL USERS
   @ApiOperation({ summary: 'Returns all users with pagination' })
   @ApiOkResponse({ type: PaginatedUserResponseDto, description: 'Success' })
+  @HttpCode(HttpStatus.OK)
   @Get()
   async findAll(
     @Query() pagination: PaginationInput,
@@ -39,6 +42,7 @@ export class UserController {
     type: UserResponseDto,
     description: 'Returns newly created user',
   })
+  @HttpCode(HttpStatus.CREATED)
   @Post()
   async createUser(
     @Body() dto: CreateUserRequestDto,
@@ -50,6 +54,7 @@ export class UserController {
   @ApiOperation({ summary: 'Delete user from DB by id' })
   @ApiNoContentResponse({ description: 'Success' })
   @ApiNotFoundResponse({ description: 'User Not Found' })
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Delete('/:id')
   async deleteUser(@Param('id') id: string): Promise<void> {
     return await this.userService.delete(id);

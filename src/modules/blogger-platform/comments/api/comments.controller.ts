@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, HttpCode, HttpStatus, Param } from '@nestjs/common';
 import { CommentResponseDto } from '../dto/comment.response.dto';
 import { CommentsService } from '../application/comments.service';
 import {
@@ -16,6 +16,7 @@ export class CommentsController {
   @ApiOperation({ summary: 'Returns comment by id' })
   @ApiOkResponse({ type: CommentResponseDto, description: 'Success' })
   @ApiNotFoundResponse({ description: 'Comment Not Found' })
+  @HttpCode(HttpStatus.OK)
   @Get('/:id')
   async getOne(@Param('id') id: string): Promise<CommentResponseDto> {
     return await this.commentsService.findById(id);
