@@ -26,12 +26,8 @@ export class BlogsRepository {
     paginationInput: PaginationInput,
   ): Promise<{ blogs: BlogDocument[]; totalCount: number }> {
     const sortBy = paginationInput.sortBy ?? 'createdAt';
-    let sortDirection = paginationInput.sortDirection;
-    if (!paginationInput.sortDirection) {
-      sortDirection = SortDirection.Asc;
-    }
-    // const sortDirection =
-    //   paginationInput.sortDirection === SortDirection.Asc ? 1 : -1;
+    const sortDirection =
+      paginationInput.sortDirection === SortDirection.Desc ? -1 : 1;
     const pageNumber = paginationInput.pageNumber ?? 1;
     const pageSize = paginationInput.pageSize ?? 10;
 

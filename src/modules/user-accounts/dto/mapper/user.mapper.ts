@@ -23,7 +23,7 @@ export class UserMapper {
       pagesCount: Math.ceil(totalCount / pageSize),
       page: pageNumber,
       pageSize: pageSize,
-      totalCount: users.length,
+      totalCount: totalCount,
       items: users.map((user) => this.toResponseView(user)),
     };
   }

@@ -18,12 +18,8 @@ export class PostsRepository {
     paginationInput: PaginationInput,
   ): Promise<{ posts: PostDocument[]; totalCount: number }> {
     const sortBy = paginationInput.sortBy ?? 'createdAt';
-    let sortDirection = paginationInput.sortDirection;
-    if (!paginationInput.sortDirection) {
-      sortDirection = SortDirection.Asc;
-    }
-    // const sortDirection =
-    //   paginationInput.sortDirection === SortDirection.Asc ? 1 : -1;
+    const sortDirection =
+      paginationInput.sortDirection === SortDirection.Desc ? -1 : 1;
     const pageNumber = paginationInput.pageNumber ?? 1;
     const pageSize = paginationInput.pageSize ?? 10;
 
@@ -42,14 +38,19 @@ export class PostsRepository {
     paginationInput: PaginationInput,
     blogId: string,
   ): Promise<{ posts: PostDocument[]; totalCount: number }> {
-    const skip = (paginationInput.pageNumber - 1) * paginationInput.pageSize;
+    const sortBy = paginationInput.sortBy ?? 'createdAt';
+    const sortDirection =
+      paginationInput.sortDirection === SortDirection.Desc ? -1 : 1;
+    const pageNumber = paginationInput.pageNumber ?? 1;
+    const pageSize = paginationInput.pageSize ?? 10;
 
+    const skip = (pageNumber - 1) * pageSize;
     const posts = await this.PostModel.find({
       blogId: blogId,
     })
-      .sort(paginationInput.sortDirection)
+      .sort({ [sortBy]: sortDirection })
       .skip(skip)
-      .limit(paginationInput.pageSize);
+      .limit(pageSize);
 
     const totalCount = await this.PostModel.countDocuments();
 
