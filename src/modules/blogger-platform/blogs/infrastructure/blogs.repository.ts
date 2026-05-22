@@ -28,11 +28,12 @@ export class BlogsRepository {
       paginationInput.sortDirection === SortDirection.Asc ? 1 : -1;
     const pageNumber = paginationInput.pageNumber ?? 1;
     const pageSize = paginationInput.pageSize ?? 10;
+    const searchNameTerm = paginationInput.searchNameTerm ?? null;
 
     const filter: Record<string, any> = {};
-    if (paginationInput.searchNameTerm) {
+    if (searchNameTerm) {
       filter.name = {
-        $regex: paginationInput.searchNameTerm,
+        $regex: searchNameTerm,
         $options: 'i',
       };
     }

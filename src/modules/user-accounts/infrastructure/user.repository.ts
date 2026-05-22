@@ -32,17 +32,18 @@ export class UserRepository {
     const searchEmailTerm = pagination.searchEmailTerm ?? null;
 
     const filter: Record<string, any> = {};
-    if (searchLoginTerm) {
-      filter.login = {
-        $regex: searchLoginTerm,
-        $options: 'i',
-      };
-    }
-    if (searchEmailTerm) {
-      filter.email = {
-        $regex: searchEmailTerm,
-        $options: 'i',
-      };
+    if (searchLoginTerm && searchEmailTerm) {
+      filter.$or = [
+        { login: { $regex: searchLoginTerm, $options: 'i' } },
+        { email: { $regex: searchEmailTerm, $options: 'i' } },
+      ];
+    } else {
+      if (searchLoginTerm) {
+        filter.login = { $regex: searchLoginTerm, $options: 'i' };
+      }
+      if (searchEmailTerm) {
+        filter.email = { $regex: searchEmailTerm, $options: 'i' };
+      }
     }
 
     const skip = (pageNumber - 1) * pageSize;
