@@ -5,9 +5,9 @@ import { Blog } from '../domain/blog.entity';
 import type { BlogModelType } from '../domain/blog.entity';
 import { BlogsRepository } from '../infrastructure/blogs.repository';
 import { BlogMapper } from '../dto/mapper/blog.response.mapper';
-import { PaginationInput } from '../../../../core/dto/pagination.request.dto';
 import { BlogResponseDto } from '../dto/blog.response.dto';
 import { PaginatedBlogResponseDto } from '../dto/blog-paginated-view.response.dto';
+import { BlogPaginationRequest } from '../dto/blog-pagination.request.dto';
 
 @Injectable()
 export class BlogsService {
@@ -24,7 +24,7 @@ export class BlogsService {
   }
 
   async findAll(
-    paginationInput: PaginationInput,
+    paginationInput: BlogPaginationRequest,
   ): Promise<PaginatedBlogResponseDto> {
     const { blogs, totalCount } = await this.blogsRepo.findAll(paginationInput);
     return this.blogsMapper.toResponsePaginatedView(

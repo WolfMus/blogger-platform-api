@@ -19,8 +19,8 @@ import {
   ApiOkResponse,
   ApiOperation,
 } from '@nestjs/swagger';
-import { PaginationInput } from '../../../core/dto/pagination.request.dto';
 import { PaginatedUserResponseDto } from '../dto/post-paginated-view.response.dto';
+import { UserPaginationRequest } from '../dto/user-pagination.request.dto';
 
 @Controller('users')
 export class UserController {
@@ -31,7 +31,7 @@ export class UserController {
   @HttpCode(HttpStatus.OK)
   @Get()
   async findAll(
-    @Query() pagination: PaginationInput,
+    @Query() pagination: UserPaginationRequest,
   ): Promise<PaginatedUserResponseDto> {
     return await this.userService.findAll(pagination);
   }

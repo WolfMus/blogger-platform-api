@@ -26,6 +26,7 @@ import { PaginatedBlogResponseDto } from '../dto/blog-paginated-view.response.dt
 import { PaginatedPostResponseDto } from '../../posts/dto/post-paginated-view.response.dto';
 import { PostResponseDto } from '../../posts/dto/post.response.dto';
 import { CreatePostForBlogRequestDto } from '../../posts/dto/create-post.request.dto';
+import { BlogPaginationRequest } from '../dto/blog-pagination.request.dto';
 
 @ApiTags('Blogs')
 @Controller('blogs')
@@ -51,7 +52,7 @@ export class BlogsController {
   @HttpCode(HttpStatus.OK)
   @Get()
   async getAllBlogs(
-    @Query() paginationInput: PaginationInput,
+    @Query() paginationInput: BlogPaginationRequest,
   ): Promise<PaginatedBlogResponseDto> {
     const blogs = await this.blogsService.findAll(paginationInput);
     return blogs;

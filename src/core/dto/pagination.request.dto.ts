@@ -7,8 +7,6 @@ export enum SortDirection {
 
 export class PaginationInput {
   @ApiProperty()
-  searchNameTerm: string | null = null;
-  @ApiProperty()
   sortBy: string = 'createdAt';
   @ApiProperty()
   sortDirection: SortDirection = SortDirection.Desc;

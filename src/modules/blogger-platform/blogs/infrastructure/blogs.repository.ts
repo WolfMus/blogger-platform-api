@@ -2,10 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { Blog, BlogDocument } from '../domain/blog.entity';
 import type { BlogModelType } from '../domain/blog.entity';
 import { InjectModel } from '@nestjs/mongoose';
-import {
-  PaginationInput,
-  SortDirection,
-} from '../../../../core/dto/pagination.request.dto';
+import { SortDirection } from '../../../../core/dto/pagination.request.dto';
+import { BlogPaginationRequest } from '../dto/blog-pagination.request.dto';
 
 @Injectable()
 export class BlogsRepository {
@@ -23,7 +21,7 @@ export class BlogsRepository {
   }
 
   async findAll(
-    paginationInput: PaginationInput,
+    paginationInput: BlogPaginationRequest,
   ): Promise<{ blogs: BlogDocument[]; totalCount: number }> {
     const sortBy = paginationInput.sortBy ?? 'createdAt';
     const sortDirection =
@@ -45,7 +43,7 @@ export class BlogsRepository {
       .skip(skip)
       .limit(pageSize);
 
-    const totalCount = await this.BlogModel.countDocuments();
+    const totalCount = await this.BlogModel.countDocuments(filter);
 
     return { blogs, totalCount };
   }

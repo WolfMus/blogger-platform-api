@@ -1,5 +1,5 @@
-import { PaginationInput } from '../../../../core/dto/pagination.request.dto';
 import { UserDocument } from '../../domain/user.entity';
+import { UserPaginationRequest } from '../user-pagination.request.dto';
 import { UserResponseDto } from '../user.response.dto';
 
 export class UserMapper {
@@ -15,7 +15,7 @@ export class UserMapper {
   toPaginatedResponseView(
     users: UserDocument[],
     totalCount: number,
-    pagination: PaginationInput,
+    pagination: UserPaginationRequest,
   ) {
     const pageNumber = pagination.pageNumber ?? 1;
     const pageSize = pagination.pageSize ?? 10;

@@ -7,8 +7,8 @@ import bcrypt from 'bcrypt';
 import { CreateUserDomainDto } from '../domain/dto/create-user.domain.dto';
 import { UserRepository } from '../infrastructure/user.repository';
 import { UserMapper } from '../dto/mapper/user.mapper';
-import { PaginationInput } from '../../../core/dto/pagination.request.dto';
 import { PaginatedUserResponseDto } from '../dto/post-paginated-view.response.dto';
+import { UserPaginationRequest } from '../dto/user-pagination.request.dto';
 
 @Injectable()
 export class UserService {
@@ -20,7 +20,7 @@ export class UserService {
   ) {}
 
   async findAll(
-    pagination: PaginationInput,
+    pagination: UserPaginationRequest,
   ): Promise<PaginatedUserResponseDto> {
     const { users, totalCount } = await this.userRepo.findAll(pagination);
     return this.userMapper.toPaginatedResponseView(
