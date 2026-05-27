@@ -3,7 +3,7 @@ import { LikeStatus } from '../../posts/domain/post.entity';
 import { HydratedDocument, Model } from 'mongoose';
 import { CreateCommentEntityDto } from '../dto/create-comment.entity.dto';
 
-@Schema({ collection: 'commentator-info' })
+@Schema({ _id: false, collection: 'commentator-info' })
 class CommentatorInfo {
   @Prop({ type: String, required: true })
   userId: string;
@@ -11,7 +11,7 @@ class CommentatorInfo {
   userLogin: string;
 }
 
-@Schema({ collection: 'likes-info' })
+@Schema({ _id: false, collection: 'likes-info' })
 class LikesInfo {
   @Prop({ type: Number, default: 0 })
   likesCount: number;

@@ -21,6 +21,7 @@ import {
 } from '@nestjs/swagger';
 import { PaginatedUserResponseDto } from '../dto/post-paginated-view.response.dto';
 import { UserPaginationRequest } from '../dto/user-pagination.request.dto';
+import { IsObjectIdPipe } from '@nestjs/mongoose';
 
 @Controller('users')
 export class UserController {
@@ -56,7 +57,7 @@ export class UserController {
   @ApiNotFoundResponse({ description: 'User Not Found' })
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete('/:id')
-  async deleteUser(@Param('id') id: string): Promise<void> {
+  async deleteUser(@Param('id', IsObjectIdPipe) id: string): Promise<void> {
     return await this.userService.delete(id);
   }
 }

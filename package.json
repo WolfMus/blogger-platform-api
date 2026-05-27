@@ -23,7 +23,9 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@nestjs-modules/mailer": "^2.3.6",
     "@nestjs/common": "^11.1.23",
+    "@nestjs/config": "^4.0.4",
     "@nestjs/core": "^11.1.23",
     "@nestjs/mongoose": "^11.0.4",
     "@nestjs/platform-express": "^11.1.21",
@@ -31,7 +33,9 @@
     "bcrypt": "^6.0.0",
     "class-transformer": "0.5.1",
     "class-validator": "0.14.1",
+    "date-fns": "^4.3.0",
     "mongoose": "^9.6.2",
+    "nodemailer": "^8.0.8",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
     "swagger-ui-express": "^5.0.1"
@@ -46,6 +50,7 @@
     "@types/express": "^5.0.6",
     "@types/jest": "^30.0.0",
     "@types/node": "^24.12.4",
+    "@types/nodemailer": "^8.0.0",
     "@types/supertest": "^7.2.0",
     "@types/validator": "^13.15.10",
     "eslint": "^9.39.4",

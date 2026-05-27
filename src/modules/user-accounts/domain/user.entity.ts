@@ -2,6 +2,19 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { CreateUserDomainDto } from './dto/create-user.domain.dto';
 import { ApiSchema } from '@nestjs/swagger';
 import { HydratedDocument, Model } from 'mongoose';
+import { randomUUID } from 'node:crypto';
+import { add } from 'date-fns';
+import { BadRequestException } from '@nestjs/common';
+
+@Schema({ _id: false })
+class Confirmation {
+  @Prop({ type: Boolean, default: false })
+  isConfirmed: boolean;
+  @Prop({ type: String, nullable: true, default: null })
+  confirmationCode: string | null;
+  @Prop({ type: Date, nullable: true, default: null })
+  confirmationExpireDate: Date | null;
+}
 
 @ApiSchema({ name: 'User Entity' })
 @Schema()
@@ -16,6 +29,8 @@ export class User {
   createdAt: Date;
   @Prop({ type: Date, default: null })
   updatedAt: Date;
+  @Prop({ type: Confirmation, required: true, default: () => ({}) })
+  confirmation: Confirmation;
 
   static createInstance(dto: CreateUserDomainDto): UserDocument {
     const user = new this();
@@ -24,6 +39,22 @@ export class User {
     user.passwordHash = dto.passwordHash;
     user.createdAt = new Date();
     return user as UserDocument;
+  }
+
+  setConfirmationCode(): void {
+    this.confirmation.confirmationCode = randomUUID();
+    this.confirmation.confirmationExpireDate = add(new Date(), {
+      minutes: 5,
+    });
+  }
+
+  isConfirmed(): void {
+    if (this.confirmation.isConfirmed === true) {
+      throw new BadRequestException('isConfirmed', 'Already registrated');
+    }
+    this.confirmation.isConfirmed = true;
+    this.confirmation.confirmationCode = null;
+    this.confirmation.confirmationExpireDate = null;
   }
 }
 

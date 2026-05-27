@@ -1,7 +1,7 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from '../domain/user.entity';
 import type { UserDocument, UserModelType } from '../domain/user.entity';
-import { NotFoundException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { SortDirection } from '../../../core/dto/pagination.request.dto';
 import { UserPaginationRequest } from '../dto/user-pagination.request.dto';
 
@@ -55,6 +55,28 @@ export class UserRepository {
     const totalCount = await this.UserModel.countDocuments(filter);
 
     return { users, totalCount };
+  }
+
+  async findByLoginOrEmail(login: string, email: string): Promise<void> {
+    const user = await this.UserModel.find({
+      $or: [{ login: login }, { email: email }],
+    });
+    if (user.length > 0) {
+      throw new BadRequestException('login or email', 'User exist');
+    }
+    return;
+  }
+
+  async findByConfirmationCode(code: string): Promise<UserDocument> {
+    const user = await this.UserModel.findOne({
+      'confirmation.confirmationCode': code,
+    });
+
+    if (!user) {
+      throw new BadRequestException('confirmationCode', 'Not Found');
+    }
+
+    return user;
   }
 
   async save(user: UserDocument): Promise<void> {

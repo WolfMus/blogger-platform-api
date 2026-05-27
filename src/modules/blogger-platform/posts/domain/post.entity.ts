@@ -10,7 +10,7 @@ export enum LikeStatus {
 }
 
 @ApiSchema({ name: 'NewestLikes' })
-@Schema()
+@Schema({ _id: false })
 export class NewestLikes {
   @ApiProperty()
   @Prop({ type: Date, required: true })
@@ -26,7 +26,7 @@ export class NewestLikes {
 }
 
 @ApiSchema({ name: 'ExtendedLikesInfo' })
-@Schema()
+@Schema({ _id: false })
 export class ExtendedLikesInfo {
   @ApiProperty()
   @Prop({ type: Number, default: 0 })

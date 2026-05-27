@@ -6,6 +6,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  ParseIntPipe,
   Post,
   Put,
   Query,
@@ -109,7 +110,7 @@ export class PostsController {
   @Get('/:id/comments')
   async getAllForPost(
     @Query() paginationInput: PaginationInput,
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: string,
   ): Promise<PaginatedCommentResponseDto> {
     return await this.commentsService.findAllForPost(paginationInput, id);
   }

@@ -6,6 +6,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  ParseIntPipe,
   Post,
   Put,
   Query,
@@ -42,7 +43,9 @@ export class BlogsController {
   @ApiNotFoundResponse({ description: 'Blog not found' })
   @HttpCode(HttpStatus.OK)
   @Get('/:id')
-  async getOneBlog(@Param('id') id: string): Promise<BlogResponseDto> {
+  async getOneBlog(
+    @Param('id', ParseIntPipe) id: string,
+  ): Promise<BlogResponseDto> {
     return await this.blogsService.findOne(id);
   }
 
@@ -76,7 +79,7 @@ export class BlogsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @Put('/:id')
   async updateBlog(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: string,
     @Body() dto: CreateBlogRequestDto,
   ): Promise<void> {
     return await this.blogsService.update(dto, id);
@@ -88,7 +91,7 @@ export class BlogsController {
   @ApiNotFoundResponse({ description: 'Not Found' })
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete('/:id')
-  async deleteBlog(@Param('id') id: number): Promise<void> {
+  async deleteBlog(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return await this.blogsService.delete(id);
   }
 
@@ -103,7 +106,7 @@ export class BlogsController {
   @Get('/:id/posts')
   async getAllPostsByBlogId(
     @Query() paginationInput: PaginationInput,
-    @Param('id') blogId: string,
+    @Param('id', ParseIntPipe) blogId: string,
   ): Promise<PaginatedPostResponseDto> {
     await this.blogsService.findOne(blogId);
     const posts = await this.postsService.findAllByBlogId(
@@ -125,7 +128,7 @@ export class BlogsController {
   @HttpCode(HttpStatus.CREATED)
   @Post('/:id/posts')
   async createPostByBlogId(
-    @Param('id') blogId: string,
+    @Param('id', ParseIntPipe) blogId: string,
     @Body() dto: CreatePostForBlogRequestDto,
   ): Promise<PostResponseDto> {
     const blog = await this.blogsService.findOne(blogId);
