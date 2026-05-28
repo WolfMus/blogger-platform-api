@@ -4,7 +4,6 @@ import { ApiSchema } from '@nestjs/swagger';
 import { HydratedDocument, Model } from 'mongoose';
 import { randomUUID } from 'node:crypto';
 import { add } from 'date-fns';
-import { BadRequestException } from '@nestjs/common';
 
 @Schema({ _id: false })
 class Confirmation {
@@ -14,6 +13,14 @@ class Confirmation {
   confirmationCode: string | null;
   @Prop({ type: Date, nullable: true, default: null })
   confirmationExpireDate: Date | null;
+}
+
+@Schema({ _id: false })
+class Recovery {
+  @Prop({ type: String, nullable: true, default: null })
+  recoveryCode: string | null;
+  @Prop({ type: Date, nullable: true, default: null })
+  recoveryCodeExpireDate: Date | null;
 }
 
 @ApiSchema({ name: 'User Entity' })
@@ -31,6 +38,8 @@ export class User {
   updatedAt: Date;
   @Prop({ type: Confirmation, required: true, default: () => ({}) })
   confirmation: Confirmation;
+  @Prop({ type: Recovery, required: true, default: () => ({}) })
+  recovery: Recovery;
 
   static createInstance(dto: CreateUserDomainDto): UserDocument {
     const user = new this();
@@ -49,12 +58,23 @@ export class User {
   }
 
   isConfirmed(): void {
-    if (this.confirmation.isConfirmed === true) {
-      throw new BadRequestException('isConfirmed', 'Already registrated');
-    }
     this.confirmation.isConfirmed = true;
     this.confirmation.confirmationCode = null;
     this.confirmation.confirmationExpireDate = null;
+  }
+
+  setRecoveryCode(): void {
+    this.recovery.recoveryCode = randomUUID();
+    this.recovery.recoveryCodeExpireDate = add(new Date(), {
+      minutes: 5,
+    });
+  }
+
+  setNewPassword(password: string): void {
+    this.passwordHash = password;
+    this.recovery.recoveryCode = null;
+    this.recovery.recoveryCodeExpireDate = null;
+    this.updatedAt = new Date();
   }
 }
 

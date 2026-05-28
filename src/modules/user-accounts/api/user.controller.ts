@@ -9,7 +9,7 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { CreateUserRequestDto } from '../dto/create-user.request.dto';
+import { CreateUserRequestDto } from '../dto/input/create-user.request.dto';
 import { UserResponseDto } from '../dto/user.response.dto';
 import { UserService } from '../application/user.service';
 import {

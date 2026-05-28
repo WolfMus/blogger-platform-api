@@ -14,4 +14,14 @@ export class EmailService {
     });
     console.log('Confirmation code: ', confirmationCode, ' - send to', email);
   }
+
+  async sendPasswordRecoveryEmail(email: string, recoveryCode: string) {
+    await this.MailerService.sendMail({
+      to: email,
+      subject: 'Recovery',
+      text: 'recovery',
+      html: `http://localhost:${process.env.PORT}/auth/new-password?code=${recoveryCode}`,
+    });
+    console.log('Recovery code: ', recoveryCode, ' - send to', email);
+  }
 }

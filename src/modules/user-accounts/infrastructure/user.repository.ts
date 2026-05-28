@@ -57,14 +57,24 @@ export class UserRepository {
     return { users, totalCount };
   }
 
-  async findByLoginOrEmail(login: string, email: string): Promise<void> {
-    const user = await this.UserModel.find({
+  async findByLoginAndEmail(login: string, email: string): Promise<void> {
+    const user = await this.UserModel.findOne({
       $or: [{ login: login }, { email: email }],
     });
-    if (user.length > 0) {
+    if (!user) {
       throw new BadRequestException('login or email', 'User exist');
     }
     return;
+  }
+
+  async findByLoginOrEmail(loginOrEmail: string): Promise<UserDocument> {
+    const user = await this.UserModel.findOne({
+      $or: [{ login: loginOrEmail }, { email: loginOrEmail }],
+    });
+    if (!user) {
+      throw new BadRequestException('login or email', 'User Exist');
+    }
+    return user;
   }
 
   async findByConfirmationCode(code: string): Promise<UserDocument> {
@@ -75,6 +85,39 @@ export class UserRepository {
     if (!user) {
       throw new BadRequestException('confirmationCode', 'Not Found');
     }
+
+    return user;
+  }
+
+  async findByRecoveryCode(recoveryCode: string): Promise<UserDocument> {
+    console.log(recoveryCode);
+    const user = await this.UserModel.findOne({
+      'recovery.recoveryCode': recoveryCode,
+    });
+
+    if (!user) {
+      throw new BadRequestException('recoveryCode', 'Not Found');
+    }
+
+    return user;
+  }
+
+  async findByEmailOrFail(email: string): Promise<UserDocument> {
+    const user = await this.UserModel.findOne({
+      email: email,
+    });
+
+    if (!user) {
+      throw new BadRequestException('confirmationCode', 'Not Found');
+    }
+
+    return user;
+  }
+
+  async findByEmail(email: string): Promise<UserDocument | null> {
+    const user = await this.UserModel.findOne({
+      email: email,
+    });
 
     return user;
   }

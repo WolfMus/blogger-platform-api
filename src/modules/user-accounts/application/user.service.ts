@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from '../domain/user.entity';
 import type { UserModelType } from '../domain/user.entity';
-import { CreateUserRequestDto } from '../dto/create-user.request.dto';
+import { CreateUserRequestDto } from '../dto/input/create-user.request.dto';
 import { CreateUserDomainDto } from '../domain/dto/create-user.domain.dto';
 import { UserRepository } from '../infrastructure/user.repository';
 import { UserMapper } from '../dto/mapper/user.mapper';
@@ -10,6 +10,7 @@ import { PaginatedUserResponseDto } from '../dto/post-paginated-view.response.dt
 import { UserPaginationRequest } from '../dto/user-pagination.request.dto';
 import { CryptoService } from './crypto.service';
 import { EmailService } from '../../notifications/applications/email.service';
+import { NewPasswordDto } from '../dto/input/new-password.dto';
 
 @Injectable()
 export class UserService {
@@ -54,7 +55,7 @@ export class UserService {
 
   async registerUser(dto: CreateUserRequestDto): Promise<void> {
     // user exists?
-    await this.userRepo.findByLoginOrEmail(dto.login, dto.email);
+    await this.userRepo.findByLoginAndEmail(dto.login, dto.email);
 
     // generate hash and create user domain dto
     const passwordHash = await this.cryptoService.generatePasswordHash(
@@ -86,13 +87,90 @@ export class UserService {
   async confirmRegistration(code: string): Promise<void> {
     // find user by confirmation code
     const user = await this.userRepo.findByConfirmationCode(code);
+
     // is code expired?
     if (user.confirmation.confirmationExpireDate!.getTime() < Date.now()) {
       throw new BadRequestException('confirmationExpireDate', 'Code Expired');
     }
+
+    // is status already true?
+    if (user.confirmation.isConfirmed === true) {
+      throw new BadRequestException('isConfirmed', 'Already registrated');
+    }
+
     // change confirmation status
     user.isConfirmed();
+
     // save user
     return await this.userRepo.save(user);
+  }
+
+  async resendConfirmationCode(email: string): Promise<void> {
+    // find user by email
+    const user = await this.userRepo.findByEmailOrFail(email);
+
+    // is status already true?
+    if (user.confirmation.isConfirmed === true) {
+      throw new BadRequestException('isConfirmed', 'Already registrated');
+    }
+
+    // create confirmation code and expires date
+    user.setConfirmationCode();
+
+    // save user
+    await this.userRepo.save(user);
+
+    // send confirmation code on user's email
+    await this.emailService.sendConfirmationEmail(
+      user.email,
+      user.confirmation.confirmationCode!,
+    );
+    return;
+  }
+
+  async recoveryPassword(email: string): Promise<void> {
+    // find user by email
+    // if user not found - return no content exception
+    const user = await this.userRepo.findByEmail(email);
+    if (!user) {
+      return;
+    }
+
+    // create recovery code and expires date
+    user.setRecoveryCode();
+
+    // save user
+    await this.userRepo.save(user);
+
+    // send recovery code on user's email
+    await this.emailService.sendPasswordRecoveryEmail(
+      user.email,
+      user.recovery.recoveryCode!,
+    );
+    return;
+  }
+
+  async newPassword(newPasswordDto: NewPasswordDto): Promise<void> {
+    // find user by recovery code
+    const user = await this.userRepo.findByRecoveryCode(
+      newPasswordDto.recoveryCode,
+    );
+
+    // is code expired?
+    if (user.recovery.recoveryCodeExpireDate!.getTime() < Date.now()) {
+      throw new BadRequestException('confirmationExpireDate', 'Code Expired');
+    }
+
+    // password to hash
+    const passwordHash = await this.cryptoService.generatePasswordHash(
+      newPasswordDto.newPassword,
+    );
+    // set new password
+    user.setNewPassword(passwordHash);
+
+    // save user
+    await this.userRepo.save(user);
+
+    return;
   }
 }
