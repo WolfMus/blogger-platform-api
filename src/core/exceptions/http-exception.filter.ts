@@ -15,6 +15,18 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const request = ctx.getRequest<Request>();
     const status = exception.getStatus();
 
+    if (status === 429) {
+      return;
+    }
+
+    if (status === 404) {
+      return;
+    }
+
+    if (status === 401) {
+      return;
+    }
+
     if (status === 400) {
       const errorResponse: ErrorResponseDto = {
         errors: [],
@@ -39,12 +51,13 @@ export class HttpExceptionFilter implements ExceptionFilter {
         });
       }
       response.status(status).json(errorResponse);
-    } else {
-      response.status(status).json({
-        statusCode: status,
-        timestamp: new Date().toISOString(),
-        path: request.url,
-      });
+      return;
     }
+
+    return response.status(status).json({
+      statusCode: status,
+      timestamp: new Date().toISOString(),
+      path: request.url,
+    });
   }
 }
