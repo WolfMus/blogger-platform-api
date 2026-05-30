@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Comment, CommentDocument } from '../domain/comment.entity';
 import type { CommentModelType } from '../domain/comment.entity';
@@ -6,6 +6,10 @@ import {
   PaginationInput,
   SortDirection,
 } from '../../../../core/dto/pagination.request.dto';
+import {
+  DomainException,
+  Extension,
+} from '../../../../core/exceptions/domain-exception';
 
 @Injectable()
 export class CommentsRepository {
@@ -17,7 +21,11 @@ export class CommentsRepository {
   async findById(id: string): Promise<CommentDocument> {
     const comment = await this.CommentModel.findById(id);
     if (!comment) {
-      throw new NotFoundException('id', 'Comment Not Found');
+      throw new DomainException({
+        code: HttpStatus.NOT_FOUND,
+        message: 'Not Found',
+        extensions: [new Extension('Comment Not Found', 'id')],
+      });
     }
     return comment;
   }

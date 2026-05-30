@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { Post, PostDocument } from '../domain/post.entity';
 import type { PostModelType } from '../domain/post.entity';
 import { InjectModel } from '@nestjs/mongoose';
@@ -6,6 +6,10 @@ import {
   PaginationInput,
   SortDirection,
 } from '../../../../core/dto/pagination.request.dto';
+import {
+  DomainException,
+  Extension,
+} from '../../../../core/exceptions/domain-exception';
 
 @Injectable()
 export class PostsRepository {
@@ -60,7 +64,11 @@ export class PostsRepository {
   async findById(id: string): Promise<PostDocument> {
     const post = await this.PostModel.findById(id);
     if (!post) {
-      throw new NotFoundException('id', 'Post Not Found');
+      throw new DomainException({
+        code: HttpStatus.NOT_FOUND,
+        message: 'Not Found',
+        extensions: [new Extension('Post Not Found', 'id')],
+      });
     }
     return post;
   }
@@ -73,7 +81,11 @@ export class PostsRepository {
   async delete(id: string): Promise<void> {
     const deletedPost = await this.PostModel.findByIdAndDelete(id);
     if (deletedPost === null) {
-      throw new NotFoundException('id', 'Post Not Found');
+      throw new DomainException({
+        code: HttpStatus.NOT_FOUND,
+        message: 'Not Found',
+        extensions: [new Extension('Post Not Found', 'id')],
+      });
     }
     return;
   }

@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from '../domain/user.entity';
 import type { UserModelType } from '../domain/user.entity';
@@ -11,6 +11,10 @@ import { UserPaginationRequest } from '../dto/user-pagination.request.dto';
 import { CryptoService } from './crypto.service';
 import { EmailService } from '../../notifications/applications/email.service';
 import { NewPasswordDto } from '../dto/input/new-password.dto';
+import {
+  DomainException,
+  Extension,
+} from '../../../core/exceptions/domain-exception';
 
 @Injectable()
 export class UserService {
@@ -90,12 +94,20 @@ export class UserService {
 
     // is code expired?
     if (user.confirmation.confirmationExpireDate!.getTime() < Date.now()) {
-      throw new BadRequestException('confirmationExpireDate', 'Code Expired');
+      throw new DomainException({
+        code: HttpStatus.BAD_REQUEST,
+        message: 'Bad Request',
+        extensions: [new Extension('Code Expired', 'confirmationExpireDate')],
+      });
     }
 
     // is status already true?
     if (user.confirmation.isConfirmed === true) {
-      throw new BadRequestException('isConfirmed', 'Already registrated');
+      throw new DomainException({
+        code: HttpStatus.BAD_REQUEST,
+        message: 'Bad Request',
+        extensions: [new Extension('Already registrated', 'isConfirmed')],
+      });
     }
 
     // change confirmation status
@@ -111,7 +123,11 @@ export class UserService {
 
     // is status already true?
     if (user.confirmation.isConfirmed === true) {
-      throw new BadRequestException('isConfirmed', 'Already registrated');
+      throw new DomainException({
+        code: HttpStatus.BAD_REQUEST,
+        message: 'Bad Request',
+        extensions: [new Extension('Already registrated', 'isConfirmed')],
+      });
     }
 
     // create confirmation code and expires date
@@ -158,7 +174,11 @@ export class UserService {
 
     // is code expired?
     if (user.recovery.recoveryCodeExpireDate!.getTime() < Date.now()) {
-      throw new BadRequestException('confirmationExpireDate', 'Code Expired');
+      throw new DomainException({
+        code: HttpStatus.BAD_REQUEST,
+        message: 'Bad Request',
+        extensions: [new Extension('Code Expired', 'confirmationExpireDate')],
+      });
     }
 
     // password to hash

@@ -1,9 +1,13 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { Blog, BlogDocument } from '../domain/blog.entity';
 import type { BlogModelType } from '../domain/blog.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { SortDirection } from '../../../../core/dto/pagination.request.dto';
 import { BlogPaginationRequest } from '../dto/blog-pagination.request.dto';
+import {
+  DomainException,
+  Extension,
+} from '../../../../core/exceptions/domain-exception';
 
 @Injectable()
 export class BlogsRepository {
@@ -15,7 +19,12 @@ export class BlogsRepository {
   async findById(id: string): Promise<BlogDocument> {
     const blog = await this.BlogModel.findById(id);
     if (!blog) {
-      throw new NotFoundException('id', 'Blog not found');
+      console.log('Throwing Not Found Exception');
+      throw new DomainException({
+        code: HttpStatus.NOT_FOUND,
+        message: 'Not Found',
+        extensions: [new Extension('Blog Not Found', 'id')],
+      });
     }
     return blog;
   }
@@ -57,7 +66,11 @@ export class BlogsRepository {
   async delete(id: number): Promise<void> {
     const deletedBlog = await this.BlogModel.findByIdAndDelete(id);
     if (deletedBlog === null) {
-      throw new NotFoundException('id', 'Blog not found');
+      throw new DomainException({
+        code: HttpStatus.NOT_FOUND,
+        message: 'Not Found',
+        extensions: [new Extension('Blog Not Found', 'id')],
+      });
     }
     return;
   }

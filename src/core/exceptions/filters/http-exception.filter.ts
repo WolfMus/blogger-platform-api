@@ -5,7 +5,7 @@ import {
   HttpException,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { ErrorResponseDto } from './dto/error-response.dto';
+import { ErrorResponseDto } from '../dto/error-response.dto';
 
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
@@ -14,18 +14,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
     const status = exception.getStatus();
-
-    if (status === 429) {
-      return;
-    }
-
-    if (status === 404) {
-      return;
-    }
-
-    if (status === 401) {
-      return;
-    }
 
     if (status === 400) {
       const errorResponse: ErrorResponseDto = {
@@ -46,8 +34,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
         );
       } else if (typeof responseBody.message === 'string') {
         errorResponse.errors.push({
-          field: 'x',
-          message: responseBody.message,
+          field: 'asd',
+          message: 'm.message',
         });
       }
       response.status(status).json(errorResponse);

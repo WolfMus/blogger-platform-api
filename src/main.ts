@@ -2,13 +2,11 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { BadRequestException, ValidationPipe } from '@nestjs/common';
-import { HttpExceptionFilter } from './core/exceptions/http-exception.filter';
+// import { HttpExceptionFilter } from './core/exceptions/http-exception.filter';
+// import { DomainException } from './core/exceptions/domain-exception';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  // app.setGlobalPrefix('api');
-
-  app.useGlobalFilters(new HttpExceptionFilter());
 
   app.useGlobalPipes(
     new ValidationPipe({

@@ -28,6 +28,7 @@ import { PaginatedPostResponseDto } from '../../posts/dto/post-paginated-view.re
 import { PostResponseDto } from '../../posts/dto/post.response.dto';
 import { CreatePostForBlogRequestDto } from '../../posts/dto/create-post.request.dto';
 import { BlogPaginationRequest } from '../dto/blog-pagination.request.dto';
+import { ParseObjectIdPipe } from '@nestjs/mongoose';
 
 @ApiTags('Blogs')
 @Controller('blogs')
@@ -44,7 +45,7 @@ export class BlogsController {
   @HttpCode(HttpStatus.OK)
   @Get('/:id')
   async getOneBlog(
-    @Param('id', ParseIntPipe) id: string,
+    @Param('id', ParseObjectIdPipe) id: string,
   ): Promise<BlogResponseDto> {
     return await this.blogsService.findOne(id);
   }

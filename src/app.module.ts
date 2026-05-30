@@ -4,6 +4,9 @@ import { BloggerPlatformModule } from './modules/blogger-platform/blogger-platfo
 import { TestingModule } from './testing/testing.module';
 import { UserAccountsModule } from './modules/user-accounts/user-accounts.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { APP_FILTER } from '@nestjs/core';
+import { HttpExceptionFilter } from './core/exceptions/filters/http-exception.filter';
+import { DomainExceptionFilter } from './core/exceptions/filters/domain-exception.filter';
 
 @Module({
   imports: [
@@ -14,6 +17,16 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
     TestingModule,
     UserAccountsModule,
     NotificationsModule,
+  ],
+  providers: [
+    {
+      provide: APP_FILTER,
+      useClass: DomainExceptionFilter,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: HttpExceptionFilter,
+    },
   ],
 })
 export class AppModule {}

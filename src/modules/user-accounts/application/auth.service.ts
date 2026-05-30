@@ -1,8 +1,12 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { LoginUserRequestDto } from '../dto/input/login-user.request.dto';
 import { UserRepository } from '../infrastructure/user.repository';
 import { CryptoService } from './crypto.service';
 import { JwtService } from '@nestjs/jwt';
+import {
+  DomainException,
+  Extension,
+} from '../../../core/exceptions/domain-exception';
 
 @Injectable()
 export class AuthService {
@@ -18,7 +22,11 @@ export class AuthService {
 
     // is password correct
     if (!(await this.cryptoService.compare(dto.password, user.passwordHash))) {
-      throw new UnauthorizedException('password', 'Incorrect Data');
+      throw new DomainException({
+        code: HttpStatus.UNAUTHORIZED,
+        message: 'Unauthorized',
+        extensions: [new Extension('Incorrect Data', 'password')],
+      });
     }
 
     // create payload

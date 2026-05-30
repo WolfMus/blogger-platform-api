@@ -1,9 +1,13 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from '../domain/user.entity';
 import type { UserDocument, UserModelType } from '../domain/user.entity';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { HttpStatus } from '@nestjs/common';
 import { SortDirection } from '../../../core/dto/pagination.request.dto';
 import { UserPaginationRequest } from '../dto/user-pagination.request.dto';
+import {
+  DomainException,
+  Extension,
+} from '../../../core/exceptions/domain-exception';
 
 export class UserRepository {
   constructor(
@@ -14,7 +18,11 @@ export class UserRepository {
   async findById(id: string): Promise<UserDocument> {
     const user = await this.UserModel.findById(id);
     if (!user) {
-      throw new NotFoundException('id', 'User Not Found');
+      throw new DomainException({
+        code: HttpStatus.NOT_FOUND,
+        message: 'Not Found',
+        extensions: [new Extension('User Not Found', 'id')],
+      });
     }
     return user;
   }
@@ -62,7 +70,11 @@ export class UserRepository {
       $or: [{ login: login }, { email: email }],
     });
     if (!user) {
-      throw new BadRequestException('login or email', 'User exist');
+      throw new DomainException({
+        code: HttpStatus.BAD_REQUEST,
+        message: 'Exists',
+        extensions: [new Extension('User exist', 'login or email')],
+      });
     }
     return;
   }
@@ -72,7 +84,11 @@ export class UserRepository {
       $or: [{ login: loginOrEmail }, { email: loginOrEmail }],
     });
     if (!user) {
-      throw new BadRequestException('login or email', 'User Exist');
+      throw new DomainException({
+        code: HttpStatus.BAD_REQUEST,
+        message: 'Exists',
+        extensions: [new Extension('User exist', 'login or email')],
+      });
     }
     return user;
   }
@@ -83,7 +99,13 @@ export class UserRepository {
     });
 
     if (!user) {
-      throw new BadRequestException('confirmationCode', 'Not Found');
+      throw new DomainException({
+        code: HttpStatus.BAD_REQUEST,
+        message: 'Not Found',
+        extensions: [
+          new Extension('Confirmation Code Not Found', 'confirmationCode'),
+        ],
+      });
     }
 
     return user;
@@ -96,7 +118,11 @@ export class UserRepository {
     });
 
     if (!user) {
-      throw new BadRequestException('recoveryCode', 'Not Found');
+      throw new DomainException({
+        code: HttpStatus.BAD_REQUEST,
+        message: 'Not Found',
+        extensions: [new Extension('Recovery Code Not Found', 'recoveryCode')],
+      });
     }
 
     return user;
@@ -108,7 +134,13 @@ export class UserRepository {
     });
 
     if (!user) {
-      throw new BadRequestException('confirmationCode', 'Not Found');
+      throw new DomainException({
+        code: HttpStatus.BAD_REQUEST,
+        message: 'Not Found',
+        extensions: [
+          new Extension('Confirmation Code Not Found', 'confirmationCode'),
+        ],
+      });
     }
 
     return user;
@@ -130,7 +162,11 @@ export class UserRepository {
   async deleteById(id: string): Promise<void> {
     const userDeleted = await this.UserModel.findByIdAndDelete(id);
     if (userDeleted === null) {
-      throw new NotFoundException('id', 'User Not Found');
+      throw new DomainException({
+        code: HttpStatus.NOT_FOUND,
+        message: 'Not Found',
+        extensions: [new Extension('User Not Found', 'id')],
+      });
     }
     return;
   }
