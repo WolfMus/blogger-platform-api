@@ -69,11 +69,12 @@ export class UserRepository {
     const user = await this.UserModel.findOne({
       $or: [{ login: login }, { email: email }],
     });
-    if (!user) {
+    if (user) {
+      const foundedBy = user.login === login ? 'login' : 'email';
       throw new DomainException({
         code: HttpStatus.BAD_REQUEST,
         message: 'Exists',
-        extensions: [new Extension('User exist', 'login or email')],
+        extensions: [new Extension('User exist', foundedBy)],
       });
     }
     return;
@@ -85,9 +86,9 @@ export class UserRepository {
     });
     if (!user) {
       throw new DomainException({
-        code: HttpStatus.BAD_REQUEST,
+        code: HttpStatus.UNAUTHORIZED,
         message: 'Exists',
-        extensions: [new Extension('User exist', 'login or email')],
+        extensions: [new Extension('User exist', 'email')],
       });
     }
     return user;
