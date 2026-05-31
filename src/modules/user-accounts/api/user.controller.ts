@@ -8,6 +8,7 @@ import {
   Param,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { CreateUserRequestDto } from '../dto/input/create-user.request.dto';
 import { UserResponseDto } from '../dto/user.response.dto';
@@ -22,7 +23,9 @@ import {
 import { PaginatedUserResponseDto } from '../dto/post-paginated-view.response.dto';
 import { UserPaginationRequest } from '../dto/user-pagination.request.dto';
 import { IsObjectIdPipe } from '@nestjs/mongoose';
+import { BasicAuthGuard } from '../../../core/guards/basic-auth.guard';
 
+@UseGuards(BasicAuthGuard)
 @Controller('users')
 export class UserController {
   constructor(private userService: UserService) {}

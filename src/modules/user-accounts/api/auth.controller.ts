@@ -1,9 +1,24 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Req,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import { CreateUserRequestDto } from '../dto/input/create-user.request.dto';
 import { UserService } from '../application/user.service';
 import { NewPasswordDto } from '../dto/input/new-password.dto';
 import { LoginUserRequestDto } from '../dto/input/login-user.request.dto';
 import { AuthService } from '../application/auth.service';
+import { BearerAuthGuard } from '../../../core/guards/bearer-auth.guard';
+
+interface Request {
+  userId: string;
+}
 
 @Controller('auth')
 export class AuthController {
@@ -18,7 +33,6 @@ export class AuthController {
   async loginUser(
     @Body() dto: LoginUserRequestDto,
   ): Promise<{ accessToken: string }> {
-    // ): Promise<> {
     return await this.authService.login(dto);
   }
 
@@ -55,5 +69,19 @@ export class AuthController {
   @Post('/new-password')
   async newPassword(@Body() newPasswordDto: NewPasswordDto): Promise<void> {
     return await this.userService.newPassword(newPasswordDto);
+  }
+
+  // GET ME
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(BearerAuthGuard)
+  @Get('/me')
+  async getMeInfo(@Req() req: Request): Promise<{
+    email: string;
+    login: string;
+    userId: string;
+  }> {
+    console.log(req.userId);
+    // const userId = req.user.userId;
+    return await this.userService.getMeInfo(req.userId);
   }
 }

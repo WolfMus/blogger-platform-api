@@ -193,4 +193,18 @@ export class UserService {
 
     return;
   }
+
+  async getMeInfo(userId: string): Promise<{
+    email: string;
+    login: string;
+    userId: string;
+  }> {
+    const user = await this.userRepo.findById(userId);
+    const userInfo = {
+      email: user.email,
+      login: user.login,
+      userId: user._id.toString(),
+    };
+    return userInfo;
+  }
 }
