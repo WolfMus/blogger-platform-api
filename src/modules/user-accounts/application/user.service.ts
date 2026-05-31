@@ -126,7 +126,7 @@ export class UserService {
       throw new DomainException({
         code: HttpStatus.BAD_REQUEST,
         message: 'Bad Request',
-        extensions: [new Extension('Already registrated', 'isConfirmed')],
+        extensions: [new Extension('Already registrated', 'email')],
       });
     }
 
