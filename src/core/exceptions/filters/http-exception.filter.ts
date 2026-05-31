@@ -55,6 +55,14 @@ export class HttpExceptionFilter implements ExceptionFilter {
       return;
     }
 
+    if (status === 401) {
+      return response.sendStatus(status);
+    }
+
+    if (status === 403) {
+      return response.sendStatus(status);
+    }
+
     return response.status(status).json({
       statusCode: status,
       timestamp: new Date().toISOString(),

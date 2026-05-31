@@ -1,4 +1,9 @@
-import { ExceptionFilter, Catch, ArgumentsHost } from '@nestjs/common';
+import {
+  ExceptionFilter,
+  Catch,
+  ArgumentsHost,
+  HttpStatus,
+} from '@nestjs/common';
 import { Response } from 'express';
 import { DomainException } from '../domain-exception';
 
@@ -8,6 +13,10 @@ export class DomainExceptionFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const status = exception.code;
+
+    if (status === HttpStatus.UNAUTHORIZED) {
+      return response.sendStatus(status);
+    }
 
     return response.status(status).json({
       errorMessages: [

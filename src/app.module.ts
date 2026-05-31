@@ -4,11 +4,9 @@ import { BloggerPlatformModule } from './modules/blogger-platform/blogger-platfo
 import { TestingModule } from './testing/testing.module';
 import { UserAccountsModule } from './modules/user-accounts/user-accounts.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
-import { APP_FILTER, APP_GUARD } from '@nestjs/core';
+import { APP_FILTER } from '@nestjs/core';
 import { HttpExceptionFilter } from './core/exceptions/filters/http-exception.filter';
 import { DomainExceptionFilter } from './core/exceptions/filters/domain-exception.filter';
-import { BasicAuthGuard } from './core/guards/basic-auth.guard';
-import { BearerAuthGuard } from './core/guards/bearer-auth.guard';
 
 @Module({
   imports: [
@@ -28,14 +26,6 @@ import { BearerAuthGuard } from './core/guards/bearer-auth.guard';
     {
       provide: APP_FILTER,
       useClass: HttpExceptionFilter,
-    },
-    {
-      provide: APP_GUARD,
-      useClass: BasicAuthGuard,
-    },
-    {
-      provide: APP_GUARD,
-      useClass: BearerAuthGuard,
     },
   ],
 })

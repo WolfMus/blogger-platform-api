@@ -1,5 +1,11 @@
-import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  HttpStatus,
+} from '@nestjs/common';
 import { Request } from 'express';
+import { DomainException, Extension } from '../exceptions/domain-exception';
 
 @Injectable()
 export class BasicAuthGuard implements CanActivate {
@@ -9,7 +15,11 @@ export class BasicAuthGuard implements CanActivate {
     const authHeader = request.headers.authorization;
 
     if (!authHeader) {
-      return false;
+      throw new DomainException({
+        code: HttpStatus.UNAUTHORIZED,
+        message: 'Unauthorized',
+        extensions: [new Extension('Unauthorized', 'Auth')],
+      });
     }
 
     const [authType, token] = authHeader.split(' ');
@@ -26,6 +36,9 @@ export class BasicAuthGuard implements CanActivate {
 
       return true;
     }
-    return false;
+    throw new DomainException({
+      code: HttpStatus.UNAUTHORIZED,
+      message: 'Unauthorized',
+    });
   }
 }
