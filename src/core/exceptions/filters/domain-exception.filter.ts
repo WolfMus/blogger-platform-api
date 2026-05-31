@@ -19,7 +19,7 @@ export class DomainExceptionFilter implements ExceptionFilter {
     }
 
     return response.status(status).json({
-      errorMessages: [
+      errorsMessages: [
         {
           message: exception.extensions[0].message,
           field: exception.extensions[0].field,

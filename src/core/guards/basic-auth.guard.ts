@@ -31,7 +31,11 @@ export class BasicAuthGuard implements CanActivate {
         .split(':');
 
       if (username !== 'admin' || password !== 'qwerty') {
-        return false;
+        throw new DomainException({
+          code: HttpStatus.UNAUTHORIZED,
+          message: 'Unauthorized',
+          extensions: [new Extension('Unauthorized', 'Auth')],
+        });
       }
 
       return true;
@@ -39,6 +43,7 @@ export class BasicAuthGuard implements CanActivate {
     throw new DomainException({
       code: HttpStatus.UNAUTHORIZED,
       message: 'Unauthorized',
+      extensions: [new Extension('Unauthorized', 'Auth')],
     });
   }
 }

@@ -102,9 +102,7 @@ export class UserRepository {
       throw new DomainException({
         code: HttpStatus.BAD_REQUEST,
         message: 'Not Found',
-        extensions: [
-          new Extension('Confirmation Code Not Found', 'confirmationCode'),
-        ],
+        extensions: [new Extension('Confirmation Code Not Found', 'code')],
       });
     }
 
@@ -137,9 +135,7 @@ export class UserRepository {
       throw new DomainException({
         code: HttpStatus.BAD_REQUEST,
         message: 'Not Found',
-        extensions: [
-          new Extension('Confirmation Code Not Found', 'confirmationCode'),
-        ],
+        extensions: [new Extension('Confirmation Code Not Found', 'email')],
       });
     }
 

@@ -4,5 +4,5 @@ export class ErrorItemResponseDto {
 }
 
 export class ErrorResponseDto {
-  errorMessages: ErrorItemResponseDto[];
+  errorsMessages: ErrorItemResponseDto[];
 }

@@ -17,9 +17,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     if (exception.message.includes('Invalid ObjectId')) {
       const errorResponse: ErrorResponseDto = {
-        errorMessages: [],
+        errorsMessages: [],
       };
-      errorResponse.errorMessages.push({
+      errorResponse.errorsMessages.push({
         message: 'Invalid Id',
         field: Object.keys(request.params)[0],
       });
@@ -29,7 +29,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     if (status === 400) {
       const errorResponse: ErrorResponseDto = {
-        errorMessages: [],
+        errorsMessages: [],
       };
       const responseBody = exception.getResponse() as {
         message: Array<{ field: string; message: string }>;
@@ -40,13 +40,13 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
       if (Array.isArray(responseBody.message)) {
         responseBody.message.forEach((m) =>
-          errorResponse.errorMessages.push({
+          errorResponse.errorsMessages.push({
             field: m.field,
             message: m.message,
           }),
         );
       } else if (typeof responseBody.message === 'string') {
-        errorResponse.errorMessages.push({
+        errorResponse.errorsMessages.push({
           field: responseBody.message,
           message: 'm.message',
         });

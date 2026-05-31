@@ -1,8 +1,14 @@
-import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  HttpStatus,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { UserRepository } from '../../modules/user-accounts/infrastructure/user.repository';
 import { JwtPayloadInterface } from '../../modules/user-accounts/application/types/jwt-payload.interface';
+import { DomainException, Extension } from '../exceptions/domain-exception';
 
 @Injectable()
 export class BearerAuthGuard implements CanActivate {
@@ -16,7 +22,11 @@ export class BearerAuthGuard implements CanActivate {
     const authHeader = request.headers.authorization;
 
     if (!authHeader) {
-      return false;
+      throw new DomainException({
+        code: HttpStatus.UNAUTHORIZED,
+        message: 'Unauthorized',
+        extensions: [new Extension('Unauthorized', 'Auth')],
+      });
     }
 
     const [authType, token] = authHeader.split(' ');
@@ -26,16 +36,28 @@ export class BearerAuthGuard implements CanActivate {
       this.jwtService.verify(token);
       const decodedToken = this.jwtService.decode<JwtPayloadInterface>(token);
       if (new Date(decodedToken.exp * 1000) < new Date()) {
-        return false;
+        throw new DomainException({
+          code: HttpStatus.UNAUTHORIZED,
+          message: 'Unauthorized',
+          extensions: [new Extension('Unauthorized', 'Auth')],
+        });
       }
       const user = await this.userRepo.findById(decodedToken.sub);
       if (!user) {
-        return false;
+        throw new DomainException({
+          code: HttpStatus.UNAUTHORIZED,
+          message: 'Unauthorized',
+          extensions: [new Extension('Unauthorized', 'Auth')],
+        });
       }
 
       request['userId'] = decodedToken.sub;
       return true;
     }
-    return false;
+    throw new DomainException({
+      code: HttpStatus.UNAUTHORIZED,
+      message: 'Unauthorized',
+      extensions: [new Extension('Unauthorized', 'Auth')],
+    });
   }
 }
