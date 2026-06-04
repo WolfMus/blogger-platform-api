@@ -1,53 +1,42 @@
-import { Injectable } from '@nestjs/common';
-import { CreateBlogRequestDto } from '../dto/create-blog.request.dto';
-import { InjectModel } from '@nestjs/mongoose';
-import { Blog } from '../domain/blog.entity';
-import type { BlogModelType } from '../domain/blog.entity';
-import { BlogsRepository } from '../infrastructure/blogs.repository';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { BlogMapper } from '../dto/mapper/blog.response.mapper';
-import { BlogResponseDto } from '../dto/blog.response.dto';
 import { PaginatedBlogResponseDto } from '../dto/blog-paginated-view.response.dto';
 import { BlogPaginationRequest } from '../dto/blog-pagination.request.dto';
+import { BlogsQwRepository } from '../infrastructure/query/blogs-query.repository';
+import { BlogResponseDto } from '../dto/blog-response.dto';
+import {
+  DomainException,
+  Extension,
+} from '../../../../core/exceptions/domain-exception';
 
 @Injectable()
 export class BlogsService {
   constructor(
-    @InjectModel(Blog.name)
-    private BlogModel: BlogModelType,
-    private blogsRepo: BlogsRepository,
+    private blogsQueryRepo: BlogsQwRepository,
     private blogsMapper: BlogMapper,
   ) {}
 
-  async findOne(id: string): Promise<BlogResponseDto> {
-    const blog = await this.blogsRepo.findById(id);
-    return this.blogsMapper.toResponseView(blog);
+  async findById(id: string): Promise<BlogResponseDto> {
+    const blog = await this.blogsQueryRepo.findById(id);
+    if (!blog) {
+      throw new DomainException({
+        code: HttpStatus.NOT_FOUND,
+        message: 'Not Found',
+        extensions: [new Extension('Blog Not Found', 'id')],
+      });
+    }
+    return blog;
   }
 
   async findAll(
     paginationInput: BlogPaginationRequest,
   ): Promise<PaginatedBlogResponseDto> {
-    const { blogs, totalCount } = await this.blogsRepo.findAll(paginationInput);
+    const { blogs, totalCount } =
+      await this.blogsQueryRepo.findAll(paginationInput);
     return this.blogsMapper.toResponsePaginatedView(
       blogs,
       paginationInput,
       totalCount,
     );
-  }
-
-  async create(dto: CreateBlogRequestDto): Promise<BlogResponseDto> {
-    const blog = this.BlogModel.createInstance(dto);
-    await this.blogsRepo.save(blog);
-    return this.blogsMapper.toResponseView(blog);
-  }
-
-  async update(dto: CreateBlogRequestDto, id: string): Promise<void> {
-    const blog = await this.blogsRepo.findById(id);
-    blog.updateBlog(dto);
-    await this.blogsRepo.save(blog);
-    return;
-  }
-
-  async delete(id: number): Promise<void> {
-    return await this.blogsRepo.delete(id);
   }
 }

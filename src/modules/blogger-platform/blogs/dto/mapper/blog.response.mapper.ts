@@ -1,6 +1,6 @@
 import { PaginationInput } from '../../../../../core/dto/pagination.request.dto';
 import { BlogDocument } from '../../domain/blog.entity';
-import { BlogResponseDto } from '../blog.response.dto';
+import { BlogResponseDto } from '../blog-response.dto';
 import { PaginatedBlogResponseDto } from '../blog-paginated-view.response.dto';
 
 export class BlogMapper {

@@ -17,8 +17,11 @@ import { Comment, CommentSchema } from './comments/domain/comment.entity';
 import { CommentsRepository } from './comments/infrastructure/comments.repository';
 import { CommentMapper } from './comments/dto/mapper/comment.response.mapper';
 import { CreateBlogUseCase } from './blogs/application/usecases/create-blog.usecase';
+import { UpdateBlogUseCase } from './blogs/application/usecases/update-blog.usecase';
+import { DeleteBlogUseCase } from './blogs/application/usecases/delete-blog.usecase';
+import { BlogsQwRepository } from './blogs/infrastructure/query/blogs-query.repository';
 
-const blogUseCases = [CreateBlogUseCase];
+const blogUseCases = [CreateBlogUseCase, UpdateBlogUseCase, DeleteBlogUseCase];
 const postUseCases = [];
 const commentUseCases = [];
 
@@ -35,6 +38,7 @@ const commentUseCases = [];
     ...blogUseCases,
     BlogsService,
     BlogsRepository,
+    BlogsQwRepository,
     BlogMapper,
     PostsService,
     PostsRepository,

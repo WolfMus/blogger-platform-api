@@ -44,7 +44,7 @@ export class PostsController {
   async createPost(
     @Body() dto: CreatePostRequestDto,
   ): Promise<PostResponseDto> {
-    const blog = await this.blogsService.findOne(dto.blogId);
+    const blog = await this.blogsService.findById(dto.blogId);
     return await this.postsService.create(dto, blog.name);
   }
 

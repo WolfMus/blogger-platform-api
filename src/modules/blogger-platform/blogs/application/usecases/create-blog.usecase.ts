@@ -1,6 +1,6 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Blog, type BlogModelType } from '../../domain/blog.entity';
-import { BlogResponseDto } from '../../dto/blog.response.dto';
+import { BlogResponseDto } from '../../dto/blog-response.dto';
 import { CreateBlogRequestDto } from '../../dto/create-blog.request.dto';
 import { BlogMapper } from '../../dto/mapper/blog.response.mapper';
 import { BlogsRepository } from '../../infrastructure/blogs.repository';
@@ -11,10 +11,7 @@ export class CreateBlogCommand {
 }
 
 @CommandHandler(CreateBlogCommand)
-export class CreateBlogUseCase implements ICommandHandler<
-  CreateBlogCommand,
-  BlogResponseDto
-> {
+export class CreateBlogUseCase implements ICommandHandler<CreateBlogCommand> {
   constructor(
     @InjectModel(Blog.name)
     private BlogModel: BlogModelType,

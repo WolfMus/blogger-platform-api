@@ -13,7 +13,7 @@ import {
 import { CreateBlogRequestDto } from '../dto/create-blog.request.dto';
 import { BlogsService } from '../application/blogs.service';
 import { PaginationInput } from '../../../../core/dto/pagination.request.dto';
-import { BlogResponseDto } from '../dto/blog.response.dto';
+import { BlogResponseDto } from '../dto/blog-response.dto';
 import {
   ApiCreatedResponse,
   ApiNotFoundResponse,
@@ -30,6 +30,8 @@ import { BlogPaginationRequest } from '../dto/blog-pagination.request.dto';
 import { ParseObjectIdPipe } from '@nestjs/mongoose';
 import { CreateBlogCommand } from '../application/usecases/create-blog.usecase';
 import { CommandBus } from '@nestjs/cqrs';
+import { UpdateBlogCommand } from '../application/usecases/update-blog.usecase';
+import { DeleteBlogCommand } from '../application/usecases/delete-blog.usecase';
 
 @ApiTags('Blogs')
 @Controller('blogs')
@@ -49,7 +51,7 @@ export class BlogsController {
   async getOneBlog(
     @Param('id', ParseObjectIdPipe) id: string,
   ): Promise<BlogResponseDto> {
-    return await this.blogsService.findOne(id);
+    return await this.blogsService.findById(id);
   }
 
   // GET BLOGS WITH PAGINATION
@@ -72,7 +74,7 @@ export class BlogsController {
   async createBlog(
     @Body() dto: CreateBlogRequestDto,
   ): Promise<BlogResponseDto> {
-    return this.commandBus.execute<CreateBlogCommand, BlogResponseDto>(
+    return await this.commandBus.execute<CreateBlogCommand, BlogResponseDto>(
       new CreateBlogCommand(dto),
     );
   }
@@ -87,7 +89,9 @@ export class BlogsController {
     @Param('id', ParseObjectIdPipe) id: string,
     @Body() dto: CreateBlogRequestDto,
   ): Promise<void> {
-    return await this.blogsService.update(dto, id);
+    return await this.commandBus.execute<UpdateBlogCommand, void>(
+      new UpdateBlogCommand(dto, id),
+    );
   }
 
   // DELETE BLOG BY ID
@@ -97,7 +101,9 @@ export class BlogsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete('/:id')
   async deleteBlog(@Param('id', ParseObjectIdPipe) id: number): Promise<void> {
-    return await this.blogsService.delete(id);
+    return await this.commandBus.execute<DeleteBlogCommand, void>(
+      new DeleteBlogCommand(id),
+    );
   }
 
   // ======== POSTS ========
@@ -113,7 +119,7 @@ export class BlogsController {
     @Query() paginationInput: PaginationInput,
     @Param('id', ParseObjectIdPipe) blogId: string,
   ): Promise<PaginatedPostResponseDto> {
-    await this.blogsService.findOne(blogId);
+    await this.blogsService.findById(blogId);
     const posts = await this.postsService.findAllByBlogId(
       paginationInput,
       blogId,
@@ -136,7 +142,7 @@ export class BlogsController {
     @Param('id', ParseObjectIdPipe) blogId: string,
     @Body() dto: CreatePostForBlogRequestDto,
   ): Promise<PostResponseDto> {
-    const blog = await this.blogsService.findOne(blogId);
+    const blog = await this.blogsService.findById(blogId);
     const post = this.postsService.createForBlog(dto, blog.id, blog.name);
     return post;
   }
