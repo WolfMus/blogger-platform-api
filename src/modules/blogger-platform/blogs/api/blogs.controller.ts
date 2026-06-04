@@ -28,11 +28,14 @@ import { PostResponseDto } from '../../posts/dto/post.response.dto';
 import { CreatePostForBlogRequestDto } from '../../posts/dto/create-post.request.dto';
 import { BlogPaginationRequest } from '../dto/blog-pagination.request.dto';
 import { ParseObjectIdPipe } from '@nestjs/mongoose';
+import { CreateBlogCommand } from '../application/usecases/create-blog.usecase';
+import { CommandBus } from '@nestjs/cqrs';
 
 @ApiTags('Blogs')
 @Controller('blogs')
 export class BlogsController {
   constructor(
+    private commandBus: CommandBus,
     private blogsService: BlogsService,
     private postsService: PostsService,
   ) {}
@@ -69,7 +72,9 @@ export class BlogsController {
   async createBlog(
     @Body() dto: CreateBlogRequestDto,
   ): Promise<BlogResponseDto> {
-    return await this.blogsService.create(dto);
+    return this.commandBus.execute<CreateBlogCommand, BlogResponseDto>(
+      new CreateBlogCommand(dto),
+    );
   }
 
   // UPDATE BLOG BY ID

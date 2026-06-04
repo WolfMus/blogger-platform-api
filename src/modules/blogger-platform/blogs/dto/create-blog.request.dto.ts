@@ -1,5 +1,6 @@
 import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 import { IsString, Length, Matches } from 'class-validator';
+import { Trim } from '../../../../core/decorators/transform/trim';
 
 const emailRegExp =
   '^https://([a-zA-Z0-9_-]+.)+[a-zA-Z0-9_-]+(/[a-zA-Z0-9_-]+)*/?$';
@@ -11,14 +12,17 @@ export class CreateBlogRequestDto {
   @ApiProperty({})
   @Length(4, 15)
   @IsString()
+  @Trim()
   name: string;
 
   @ApiProperty({})
   @Length(1, 500)
+  @Trim()
   description: string;
 
   @ApiProperty({})
   @Matches(emailRegExp)
   @Length(5, 100)
+  @Trim()
   websiteUrl: string;
 }

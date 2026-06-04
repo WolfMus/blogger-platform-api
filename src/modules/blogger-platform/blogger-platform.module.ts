@@ -16,6 +16,11 @@ import { CommentsService } from './comments/application/comments.service';
 import { Comment, CommentSchema } from './comments/domain/comment.entity';
 import { CommentsRepository } from './comments/infrastructure/comments.repository';
 import { CommentMapper } from './comments/dto/mapper/comment.response.mapper';
+import { CreateBlogUseCase } from './blogs/application/usecases/create-blog.usecase';
+
+const blogUseCases = [CreateBlogUseCase];
+const postUseCases = [];
+const commentUseCases = [];
 
 @Module({
   imports: [
@@ -27,6 +32,7 @@ import { CommentMapper } from './comments/dto/mapper/comment.response.mapper';
   ],
   controllers: [BlogsController, PostsController, CommentsController],
   providers: [
+    ...blogUseCases,
     BlogsService,
     BlogsRepository,
     BlogMapper,
@@ -37,6 +43,8 @@ import { CommentMapper } from './comments/dto/mapper/comment.response.mapper';
     CommentsService,
     CommentsRepository,
     CommentMapper,
+    ...postUseCases,
+    ...commentUseCases,
   ],
 })
 export class BloggerPlatformModule {}
