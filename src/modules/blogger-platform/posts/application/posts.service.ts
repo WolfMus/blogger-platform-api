@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Post, type PostModelType } from '../domain/post.entity';
 import {
@@ -10,6 +10,11 @@ import { PostMapper } from '../dto/mapper/post.response.mapper';
 import { PostResponseDto } from '../dto/post.response.dto';
 import { PaginationInput } from '../../../../core/dto/pagination.request.dto';
 import { PaginatedPostResponseDto } from '../dto/post-paginated-view.response.dto';
+import { PostsQwRepository } from '../infrastructure/posts-query.repository';
+import {
+  DomainException,
+  Extension,
+} from '../../../../core/exceptions/domain-exception';
 
 @Injectable()
 export class PostsService {
@@ -17,13 +22,15 @@ export class PostsService {
     @InjectModel(Post.name)
     private PostModel: PostModelType,
     private postsRepo: PostsRepository,
+    private postsQueryRepo: PostsQwRepository,
     private postMapper: PostMapper,
   ) {}
 
   async findAll(
     paginationInput: PaginationInput,
   ): Promise<PaginatedPostResponseDto> {
-    const { posts, totalCount } = await this.postsRepo.findAll(paginationInput);
+    const { posts, totalCount } =
+      await this.postsQueryRepo.findAll(paginationInput);
     return this.postMapper.toResponsePaginatedView(
       posts,
       totalCount,
@@ -35,7 +42,7 @@ export class PostsService {
     paginationInput: PaginationInput,
     blogId: string,
   ): Promise<PaginatedPostResponseDto> {
-    const { posts, totalCount } = await this.postsRepo.findAllByBlogId(
+    const { posts, totalCount } = await this.postsQueryRepo.findAllByBlogId(
       paginationInput,
       blogId,
     );
@@ -46,9 +53,16 @@ export class PostsService {
     );
   }
 
-  async findOne(id: string): Promise<PostResponseDto> {
-    const post = await this.postsRepo.findById(id);
-    return this.postMapper.toResponseView(post);
+  async findById(id: string): Promise<PostResponseDto> {
+    const post = await this.postsQueryRepo.findById(id);
+    if (!post) {
+      throw new DomainException({
+        code: HttpStatus.NOT_FOUND,
+        message: 'Not Found',
+        extensions: [new Extension('Post Not Found', 'id')],
+      });
+    }
+    return post;
   }
 
   async create(
@@ -72,15 +86,5 @@ export class PostsService {
     const post = this.PostModel.createInstance(postData, blogName);
     await this.postsRepo.save(post);
     return this.postMapper.toResponseView(post);
-  }
-
-  async update(id: string, dto: CreatePostRequestDto): Promise<void> {
-    const post = await this.postsRepo.findById(id);
-    post.updatePost(dto);
-    return await this.postsRepo.save(post);
-  }
-
-  async delete(id: string): Promise<void> {
-    return this.postsRepo.delete(id);
   }
 }

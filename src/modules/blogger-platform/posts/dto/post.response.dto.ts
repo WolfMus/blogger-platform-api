@@ -1,5 +1,9 @@
 import { ApiProperty, ApiSchema } from '@nestjs/swagger';
-import { ExtendedLikesInfo, LikeStatus } from '../domain/post.entity';
+import {
+  ExtendedLikesInfo,
+  LikeStatus,
+  PostDocument,
+} from '../domain/post.entity';
 
 @ApiSchema({ name: 'PostResponseDto' })
 export class PostResponseDto {
@@ -31,4 +35,22 @@ export class PostResponseDto {
     myStatus: LikeStatus;
     newestLikes: [];
   };
+
+  static mapToView(post: PostDocument): PostResponseDto {
+    return {
+      id: post._id.toString(),
+      title: post.title,
+      shortDescription: post.shortDescription,
+      content: post.content,
+      blogId: post.blogId,
+      blogName: post.blogName,
+      createdAt: post.createdAt,
+      extendedLikesInfo: {
+        likesCount: post.extendedLikesInfo.likesCount,
+        dislikesCount: post.extendedLikesInfo.dislikesCount,
+        myStatus: post.extendedLikesInfo.myStatus as LikeStatus,
+        newestLikes: [],
+      },
+    };
+  }
 }

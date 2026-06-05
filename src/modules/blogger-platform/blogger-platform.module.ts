@@ -8,7 +8,7 @@ import { BlogMapper } from './blogs/dto/mapper/blog.response.mapper';
 import { PostsController } from './posts/api/posts.controller';
 import { PostsService } from './posts/application/posts.service';
 import { PostsRepository } from './posts/infrastructure/posts.repository';
-import { PostsQueryRepository } from './posts/infrastructure/posts-query.repository';
+import { PostsQwRepository } from './posts/infrastructure/posts-query.repository';
 import { Post, PostSchema } from './posts/domain/post.entity';
 import { PostMapper } from './posts/dto/mapper/post.response.mapper';
 import { CommentsController } from './comments/api/comments.controller';
@@ -20,9 +20,12 @@ import { CreateBlogUseCase } from './blogs/application/usecases/create-blog.usec
 import { UpdateBlogUseCase } from './blogs/application/usecases/update-blog.usecase';
 import { DeleteBlogUseCase } from './blogs/application/usecases/delete-blog.usecase';
 import { BlogsQwRepository } from './blogs/infrastructure/query/blogs-query.repository';
+import { CreatePostUseCase } from './posts/application/usecases/create-post.usecase';
+import { UpdatePostUseCase } from './posts/application/usecases/update-post.usecase';
+import { DeletePostUseCase } from './posts/application/usecases/delete-post.usecase';
 
 const blogUseCases = [CreateBlogUseCase, UpdateBlogUseCase, DeleteBlogUseCase];
-const postUseCases = [];
+const postUseCases = [CreatePostUseCase, UpdatePostUseCase, DeletePostUseCase];
 const commentUseCases = [];
 
 @Module({
@@ -36,19 +39,19 @@ const commentUseCases = [];
   controllers: [BlogsController, PostsController, CommentsController],
   providers: [
     ...blogUseCases,
+    ...postUseCases,
+    ...commentUseCases,
     BlogsService,
     BlogsRepository,
     BlogsQwRepository,
     BlogMapper,
     PostsService,
     PostsRepository,
-    PostsQueryRepository,
+    PostsQwRepository,
     PostMapper,
     CommentsService,
     CommentsRepository,
     CommentMapper,
-    ...postUseCases,
-    ...commentUseCases,
   ],
 })
 export class BloggerPlatformModule {}

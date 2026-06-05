@@ -1,15 +1,7 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Post, PostDocument } from '../domain/post.entity';
 import type { PostModelType } from '../domain/post.entity';
 import { InjectModel } from '@nestjs/mongoose';
-import {
-  PaginationInput,
-  SortDirection,
-} from '../../../../core/dto/pagination.request.dto';
-import {
-  DomainException,
-  Extension,
-} from '../../../../core/exceptions/domain-exception';
 
 @Injectable()
 export class PostsRepository {
@@ -18,58 +10,9 @@ export class PostsRepository {
     private PostModel: PostModelType,
   ) {}
 
-  async findAll(
-    paginationInput: PaginationInput,
-  ): Promise<{ posts: PostDocument[]; totalCount: number }> {
-    const sortBy = paginationInput.sortBy ?? 'createdAt';
-    const sortDirection =
-      paginationInput.sortDirection === SortDirection.Asc ? 1 : -1;
-    const pageNumber = paginationInput.pageNumber ?? 1;
-    const pageSize = paginationInput.pageSize ?? 10;
-
-    const skip = (pageNumber - 1) * pageSize;
-    const posts = await this.PostModel.find()
-      .sort({ [sortBy]: sortDirection })
-      .skip(skip)
-      .limit(pageSize);
-
-    const totalCount = await this.PostModel.countDocuments();
-
-    return { posts, totalCount };
-  }
-
-  async findAllByBlogId(
-    paginationInput: PaginationInput,
-    blogId: string,
-  ): Promise<{ posts: PostDocument[]; totalCount: number }> {
-    const sortBy = paginationInput.sortBy ?? 'createdAt';
-    const sortDirection =
-      paginationInput.sortDirection === SortDirection.Asc ? 1 : -1;
-    const pageNumber = paginationInput.pageNumber ?? 1;
-    const pageSize = paginationInput.pageSize ?? 10;
-
-    const skip = (pageNumber - 1) * pageSize;
-    const posts = await this.PostModel.find({
-      blogId: blogId,
-    })
-      .sort({ [sortBy]: sortDirection })
-      .skip(skip)
-      .limit(pageSize);
-
-    const totalCount = await this.PostModel.countDocuments({ blogId: blogId });
-
-    return { posts, totalCount };
-  }
-
-  async findById(id: string): Promise<PostDocument> {
+  async findById(id: string): Promise<PostDocument | null> {
     const post = await this.PostModel.findById(id);
-    if (!post) {
-      throw new DomainException({
-        code: HttpStatus.NOT_FOUND,
-        message: 'Not Found',
-        extensions: [new Extension('Post Not Found', 'id')],
-      });
-    }
+    if (!post) return null;
     return post;
   }
 
@@ -78,15 +21,9 @@ export class PostsRepository {
     return;
   }
 
-  async delete(id: string): Promise<void> {
+  async delete(id: string): Promise<PostDocument | null> {
     const deletedPost = await this.PostModel.findByIdAndDelete(id);
-    if (deletedPost === null) {
-      throw new DomainException({
-        code: HttpStatus.NOT_FOUND,
-        message: 'Not Found',
-        extensions: [new Extension('Post Not Found', 'id')],
-      });
-    }
-    return;
+    if (!deletedPost) return null;
+    return deletedPost;
   }
 }

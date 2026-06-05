@@ -32,6 +32,7 @@ import { CreateBlogCommand } from '../application/usecases/create-blog.usecase';
 import { CommandBus } from '@nestjs/cqrs';
 import { UpdateBlogCommand } from '../application/usecases/update-blog.usecase';
 import { DeleteBlogCommand } from '../application/usecases/delete-blog.usecase';
+import { CreatePostCommand } from '../../posts/application/usecases/create-post.usecase';
 
 @ApiTags('Blogs')
 @Controller('blogs')
@@ -142,8 +143,11 @@ export class BlogsController {
     @Param('id', ParseObjectIdPipe) blogId: string,
     @Body() dto: CreatePostForBlogRequestDto,
   ): Promise<PostResponseDto> {
-    const blog = await this.blogsService.findById(blogId);
-    const post = this.postsService.createForBlog(dto, blog.id, blog.name);
-    return post;
+    return await this.commandBus.execute<CreatePostCommand, PostResponseDto>(
+      new CreatePostCommand({
+        ...dto,
+        blogId,
+      }),
+    );
   }
 }

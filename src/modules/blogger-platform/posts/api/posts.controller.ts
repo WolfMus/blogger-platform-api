@@ -25,13 +25,16 @@ import { PaginationInput } from '../../../../core/dto/pagination.request.dto';
 import { PaginatedPostResponseDto } from '../dto/post-paginated-view.response.dto';
 import { PaginatedCommentResponseDto } from '../../comments/dto/paginated-comment.response.dto';
 import { CommentsService } from '../../comments/application/comments.service';
-import { BlogsService } from '../../blogs/application/blogs.service';
+import { CommandBus } from '@nestjs/cqrs';
+import { CreatePostCommand } from '../application/usecases/create-post.usecase';
+import { UpdatePostCommand } from '../application/usecases/update-post.usecase';
+import { DeletePostCommand } from '../application/usecases/delete-post.usecase';
 
 @ApiTags('Posts')
 @Controller('posts')
 export class PostsController {
   constructor(
-    private blogsService: BlogsService,
+    private commandBus: CommandBus,
     private postsService: PostsService,
     private commentsService: CommentsService,
   ) {}
@@ -44,8 +47,9 @@ export class PostsController {
   async createPost(
     @Body() dto: CreatePostRequestDto,
   ): Promise<PostResponseDto> {
-    const blog = await this.blogsService.findById(dto.blogId);
-    return await this.postsService.create(dto, blog.name);
+    return this.commandBus.execute<CreatePostCommand, PostResponseDto>(
+      new CreatePostCommand(dto),
+    );
   }
 
   // FIND POST BY ID
@@ -55,7 +59,7 @@ export class PostsController {
   @HttpCode(HttpStatus.OK)
   @Get('/:id')
   async getPost(@Param('id') id: string): Promise<PostResponseDto> {
-    return await this.postsService.findOne(id);
+    return await this.postsService.findById(id);
   }
 
   // FIND ALL POSTS WITH PAGINATION
@@ -83,8 +87,9 @@ export class PostsController {
     @Param('id') id: string,
     @Body() dto: CreatePostRequestDto,
   ): Promise<void> {
-    await this.postsService.update(id, dto);
-    return;
+    return this.commandBus.execute<UpdatePostCommand, void>(
+      new UpdatePostCommand(dto, id),
+    );
   }
 
   // DELETE POST
@@ -94,7 +99,9 @@ export class PostsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete('/:id')
   async deletePost(@Param('id') id: string): Promise<void> {
-    return await this.postsService.delete(id);
+    return this.commandBus.execute<DeletePostCommand, void>(
+      new DeletePostCommand(id),
+    );
   }
 
   // ======== COMMENTS ========
