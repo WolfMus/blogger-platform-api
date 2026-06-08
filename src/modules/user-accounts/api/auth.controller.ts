@@ -7,6 +7,7 @@ import {
   Post,
   Req,
   Request,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { CreateUserRequestDto } from '../dto/input/create-user.request.dto';
@@ -15,6 +16,7 @@ import { NewPasswordDto } from '../dto/input/new-password.dto';
 import { LoginUserRequestDto } from '../dto/input/login-user.request.dto';
 import { AuthService } from '../application/auth.service';
 import { BearerAuthGuard } from '../../../core/guards/bearer-auth.guard';
+import type { Response } from 'express';
 
 interface Request {
   userId: string;
@@ -32,8 +34,14 @@ export class AuthController {
   @Post('/login')
   async loginUser(
     @Body() dto: LoginUserRequestDto,
+    @Res({ passthrough: true }) res: Response,
   ): Promise<{ accessToken: string }> {
-    return await this.authService.login(dto);
+    const { accessToken, refreshToken } = await this.authService.login(dto);
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: true,
+    });
+    return { accessToken };
   }
 
   // REGISTRATION

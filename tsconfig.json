@@ -21,5 +21,6 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
     "strictPropertyInitialization": false, // выключил для DTO
+    "types": ["jest"],
   }
 }

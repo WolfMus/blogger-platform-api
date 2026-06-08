@@ -1,4 +1,4 @@
-import { UserDocument } from '../../domain/user.entity';
+import { UserDocument } from '../../domain/users/user.entity';
 import { UserPaginationRequest } from '../user-pagination.request.dto';
 import { UserResponseDto } from '../user.response.dto';
 

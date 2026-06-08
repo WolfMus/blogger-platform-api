@@ -13,7 +13,7 @@ import {
   PostSchema,
 } from '../modules/blogger-platform/posts/domain/post.entity';
 import { Module } from '@nestjs/common';
-import { User, UserSchema } from '../modules/user-accounts/domain/user.entity';
+import { User, UserSchema } from '../modules/user-accounts/domain/users/user.entity';
 
 @Module({
   imports: [

@@ -43,7 +43,7 @@ export class BlogsController {
     private postsService: PostsService,
   ) {}
 
-  // GET BLOG BY ID
+  // ✅ GET BLOG BY ID
   @ApiOperation({ summary: 'Returns blog by id' })
   @ApiOkResponse({ type: BlogResponseDto, description: 'Returns blog' })
   @ApiNotFoundResponse({ description: 'Blog not found' })
@@ -55,7 +55,7 @@ export class BlogsController {
     return await this.blogsService.findById(id);
   }
 
-  // GET BLOGS WITH PAGINATION
+  // ✅ GET BLOGS WITH PAGINATION
   @ApiOperation({ summary: 'Returns blogs with pagination' })
   @ApiOkResponse({ type: PaginatedBlogResponseDto, description: 'Success' })
   @HttpCode(HttpStatus.OK)
@@ -67,7 +67,7 @@ export class BlogsController {
     return blogs;
   }
 
-  // CREATE NEW BLOG
+  // ✅ CREATE NEW BLOG
   @ApiOperation({ summary: 'Create new blog' })
   @ApiOkResponse({ description: 'New blog created' })
   @HttpCode(HttpStatus.CREATED)
@@ -80,7 +80,7 @@ export class BlogsController {
     );
   }
 
-  // UPDATE BLOG BY ID
+  // ✅ UPDATE BLOG BY ID
   @ApiOperation({ summary: 'Update existing blog by id with InputModel' })
   @ApiOkResponse({ description: 'No Content' })
   @ApiNotFoundResponse({ description: 'Not Found' })
@@ -95,7 +95,7 @@ export class BlogsController {
     );
   }
 
-  // DELETE BLOG BY ID
+  // ✅ DELETE BLOG BY ID
   @ApiOperation({ summary: 'Delete blog by id' })
   @ApiOkResponse({ description: 'No Content' })
   @ApiNotFoundResponse({ description: 'Not Found' })

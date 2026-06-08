@@ -1,9 +1,9 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { User } from '../domain/user.entity';
-import type { UserModelType } from '../domain/user.entity';
+import { User } from '../domain/users/user.entity';
+import type { UserModelType } from '../domain/users/user.entity';
 import { CreateUserRequestDto } from '../dto/input/create-user.request.dto';
-import { CreateUserDomainDto } from '../domain/dto/create-user.domain.dto';
+import { CreateUserDomainDto } from '../domain/users/dto/create-user.domain.dto';
 import { UserRepository } from '../infrastructure/user.repository';
 import { UserMapper } from '../dto/mapper/user.mapper';
 import { PaginatedUserResponseDto } from '../dto/post-paginated-view.response.dto';
@@ -15,6 +15,7 @@ import {
   DomainException,
   Extension,
 } from '../../../core/exceptions/domain-exception';
+import { UserQwRepository } from '../infrastructure/user-query.repository';
 
 @Injectable()
 export class UserService {
@@ -22,6 +23,7 @@ export class UserService {
     @InjectModel(User.name)
     private UserModel: UserModelType,
     private userRepo: UserRepository,
+    private userQueryRepo: UserQwRepository,
     private userMapper: UserMapper,
     private cryptoService: CryptoService,
     private emailService: EmailService,
@@ -30,7 +32,7 @@ export class UserService {
   async findAll(
     pagination: UserPaginationRequest,
   ): Promise<PaginatedUserResponseDto> {
-    const { users, totalCount } = await this.userRepo.findAll(pagination);
+    const { users, totalCount } = await this.userQueryRepo.findAll(pagination);
     return this.userMapper.toPaginatedResponseView(
       users,
       totalCount,

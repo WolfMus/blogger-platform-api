@@ -7,8 +7,8 @@ import type { PostModelType } from '../../modules/blogger-platform/posts/domain/
 import { Comment } from '../../modules/blogger-platform/comments/domain/comment.entity';
 import type { CommentModelType } from '../../modules/blogger-platform/comments/domain/comment.entity';
 import { ApiNoContentResponse } from '@nestjs/swagger';
-import { User } from '../../modules/user-accounts/domain/user.entity';
-import type { UserModelType } from '../../modules/user-accounts/domain/user.entity';
+import { User } from '../../modules/user-accounts/domain/users/user.entity';
+import type { UserModelType } from '../../modules/user-accounts/domain/users/user.entity';
 
 @Controller('testing')
 export class TestingController {

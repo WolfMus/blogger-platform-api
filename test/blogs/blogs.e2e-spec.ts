@@ -68,4 +68,50 @@ describe('BlogsController (e2e)', () => {
     expect(response.status).toBe(HttpStatus.OK);
     expect((response.body as BlogResponseDto).id).toBe(blogBody.id);
   });
+
+  it('/blogs/:id (DELETE) should delete blog by id', async () => {
+    const blogPostResponse = await request(app.getHttpServer())
+      .post('/blogs')
+      .send({
+        name: 'newBlog',
+        description: 'description',
+        websiteUrl: 'https://arbuzini.com',
+      })
+      .expect(HttpStatus.CREATED);
+    const blogBody = blogPostResponse.body as BlogResponseDto;
+    const response = await request(app.getHttpServer()).delete(
+      `/blogs/${blogBody.id}`,
+    );
+    expect(response.status).toBe(HttpStatus.NO_CONTENT);
+    await request(app.getHttpServer())
+      .get(`/blogs/${blogBody.id}`)
+      .expect(HttpStatus.NOT_FOUND);
+  });
+
+  it('/blogs/:id (PUT) should update blog by id', async () => {
+    const blogPostResponse = await request(app.getHttpServer())
+      .post('/blogs')
+      .send({
+        name: 'newBlog',
+        description: 'description',
+        websiteUrl: 'https://arbuzini.com',
+      })
+      .expect(HttpStatus.CREATED);
+    const blogBody = blogPostResponse.body as BlogResponseDto;
+    const dtoForUpdate = {
+      name: 'updatedName',
+      description: 'updatedDescription',
+      websiteUrl: 'https://updated-url.com',
+    };
+
+    await request(app.getHttpServer())
+      .put(`/blogs/${blogBody.id}`)
+      .send(dtoForUpdate)
+      .expect(HttpStatus.NO_CONTENT);
+
+    const response = await request(app.getHttpServer()).get(
+      `/blogs/${blogBody.id}`,
+    );
+    expect((response.body as BlogResponseDto).name).toBe(dtoForUpdate.name);
+  });
 });
