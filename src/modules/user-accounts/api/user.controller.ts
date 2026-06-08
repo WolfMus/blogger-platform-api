@@ -24,11 +24,16 @@ import { PaginatedUserResponseDto } from '../dto/post-paginated-view.response.dt
 import { UserPaginationRequest } from '../dto/user-pagination.request.dto';
 import { IsObjectIdPipe } from '@nestjs/mongoose';
 import { BasicAuthGuard } from '../../../core/guards/basic-auth.guard';
+import { CommandBus } from '@nestjs/cqrs';
+import { CreateUserCommand } from '../application/usecases/create-user.usecase';
 
 @UseGuards(BasicAuthGuard)
 @Controller('users')
 export class UserController {
-  constructor(private userService: UserService) {}
+  constructor(
+    private userService: UserService,
+    private commandBus: CommandBus,
+  ) {}
   // GET ALL USERS
   @ApiOperation({ summary: 'Returns all users with pagination' })
   @ApiOkResponse({ type: PaginatedUserResponseDto, description: 'Success' })
@@ -51,7 +56,9 @@ export class UserController {
   async createUser(
     @Body() dto: CreateUserRequestDto,
   ): Promise<UserResponseDto> {
-    return await this.userService.create(dto);
+    return await this.commandBus.execute<CreateUserCommand, UserResponseDto>(
+      new CreateUserCommand(dto),
+    );
   }
 
   // DELETE USER

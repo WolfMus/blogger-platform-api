@@ -1,32 +1,20 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { User } from '../domain/users/user.entity';
-import type { UserModelType } from '../domain/users/user.entity';
-import { CreateUserRequestDto } from '../dto/input/create-user.request.dto';
-import { CreateUserDomainDto } from '../domain/users/dto/create-user.domain.dto';
 import { UserRepository } from '../infrastructure/user.repository';
 import { UserMapper } from '../dto/mapper/user.mapper';
 import { PaginatedUserResponseDto } from '../dto/post-paginated-view.response.dto';
 import { UserPaginationRequest } from '../dto/user-pagination.request.dto';
-import { CryptoService } from './crypto.service';
-import { EmailService } from '../../notifications/applications/email.service';
-import { NewPasswordDto } from '../dto/input/new-password.dto';
+import { UserQwRepository } from '../infrastructure/user-query.repository';
 import {
   DomainException,
   Extension,
 } from '../../../core/exceptions/domain-exception';
-import { UserQwRepository } from '../infrastructure/user-query.repository';
 
 @Injectable()
 export class UserService {
   constructor(
-    @InjectModel(User.name)
-    private UserModel: UserModelType,
     private userRepo: UserRepository,
     private userQueryRepo: UserQwRepository,
     private userMapper: UserMapper,
-    private cryptoService: CryptoService,
-    private emailService: EmailService,
   ) {}
 
   async findAll(
@@ -40,159 +28,8 @@ export class UserService {
     );
   }
 
-  async create(dto: CreateUserRequestDto) {
-    const passwordHash = await this.cryptoService.generatePasswordHash(
-      dto.password,
-    );
-    const createUserData: CreateUserDomainDto = {
-      login: dto.login,
-      email: dto.email,
-      passwordHash: passwordHash,
-    };
-    const user = this.UserModel.createInstance(createUserData);
-    await this.userRepo.save(user);
-    return this.userMapper.toResponseView(user);
-  }
-
   async delete(id: string): Promise<void> {
     await this.userRepo.deleteById(id);
-    return;
-  }
-
-  async registerUser(dto: CreateUserRequestDto): Promise<void> {
-    // user exists?
-    await this.userRepo.findByLoginAndEmail(dto.login, dto.email);
-
-    // generate hash and create user domain dto
-    const passwordHash = await this.cryptoService.generatePasswordHash(
-      dto.password,
-    );
-    const createUserData: CreateUserDomainDto = {
-      login: dto.login,
-      email: dto.email,
-      passwordHash: passwordHash,
-    };
-
-    // create user instance
-    const user = this.UserModel.createInstance(createUserData);
-
-    // create confirmation code and expires date
-    user.setConfirmationCode();
-
-    // save user
-    await this.userRepo.save(user);
-
-    // send confirmation code on user's email
-    await this.emailService.sendConfirmationEmail(
-      user.email,
-      user.confirmation.confirmationCode!,
-    );
-    return;
-  }
-
-  async confirmRegistration(code: string): Promise<void> {
-    // find user by confirmation code
-    const user = await this.userRepo.findByConfirmationCode(code);
-
-    // is code expired?
-    if (user.confirmation.confirmationExpireDate!.getTime() < Date.now()) {
-      throw new DomainException({
-        code: HttpStatus.BAD_REQUEST,
-        message: 'Bad Request',
-        extensions: [new Extension('Code Expired', 'confirmationExpireDate')],
-      });
-    }
-
-    // is status already true?
-    if (user.confirmation.isConfirmed === true) {
-      throw new DomainException({
-        code: HttpStatus.BAD_REQUEST,
-        message: 'Bad Request',
-        extensions: [new Extension('Already registrated', 'isConfirmed')],
-      });
-    }
-
-    // change confirmation status
-    user.isConfirmed();
-
-    // save user
-    return await this.userRepo.save(user);
-  }
-
-  async resendConfirmationCode(email: string): Promise<void> {
-    // find user by email
-    const user = await this.userRepo.findByEmailOrFail(email);
-
-    // is status already true?
-    if (user.confirmation.isConfirmed === true) {
-      throw new DomainException({
-        code: HttpStatus.BAD_REQUEST,
-        message: 'Bad Request',
-        extensions: [new Extension('Already registrated', 'email')],
-      });
-    }
-
-    // create confirmation code and expires date
-    user.setConfirmationCode();
-
-    // save user
-    await this.userRepo.save(user);
-
-    // send confirmation code on user's email
-    await this.emailService.sendConfirmationEmail(
-      user.email,
-      user.confirmation.confirmationCode!,
-    );
-    return;
-  }
-
-  async recoveryPassword(email: string): Promise<void> {
-    // find user by email
-    // if user not found - return no content exception
-    const user = await this.userRepo.findByEmail(email);
-    if (!user) {
-      return;
-    }
-
-    // create recovery code and expires date
-    user.setRecoveryCode();
-
-    // save user
-    await this.userRepo.save(user);
-
-    // send recovery code on user's email
-    await this.emailService.sendPasswordRecoveryEmail(
-      user.email,
-      user.recovery.recoveryCode!,
-    );
-    return;
-  }
-
-  async newPassword(newPasswordDto: NewPasswordDto): Promise<void> {
-    // find user by recovery code
-    const user = await this.userRepo.findByRecoveryCode(
-      newPasswordDto.recoveryCode,
-    );
-
-    // is code expired?
-    if (user.recovery.recoveryCodeExpireDate!.getTime() < Date.now()) {
-      throw new DomainException({
-        code: HttpStatus.BAD_REQUEST,
-        message: 'Bad Request',
-        extensions: [new Extension('Code Expired', 'confirmationExpireDate')],
-      });
-    }
-
-    // password to hash
-    const passwordHash = await this.cryptoService.generatePasswordHash(
-      newPasswordDto.newPassword,
-    );
-    // set new password
-    user.setNewPassword(passwordHash);
-
-    // save user
-    await this.userRepo.save(user);
-
     return;
   }
 
@@ -202,6 +39,13 @@ export class UserService {
     userId: string;
   }> {
     const user = await this.userRepo.findById(userId);
+    if (!user) {
+      throw new DomainException({
+        code: HttpStatus.NOT_FOUND,
+        message: 'Not Found',
+        extensions: [new Extension('User Not Found', 'id')],
+      });
+    }
     const userInfo = {
       email: user.email,
       login: user.login,

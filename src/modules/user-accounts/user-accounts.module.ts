@@ -13,6 +13,22 @@ import { JwtModule } from '@nestjs/jwt';
 import { Session, SessionSchema } from './domain/sessions/session.entity';
 import { UserQwRepository } from './infrastructure/user-query.repository';
 import { SessionRepository } from './infrastructure/sessions/session.repository';
+import { LoginUserUseCase } from './application/usecases/login.usecase';
+import { RegistrationUserUseCase } from './application/usecases/registration.usecase';
+import { CreateUserUseCase } from './application/usecases/create-user.usecase';
+import { ConfirmRegistrationUseClass } from './application/usecases/confirm-registration.usecase';
+import { SendRecoveryCodeUseClass } from './application/usecases/send-recovery-code.usecase';
+import { ResetPasswordUseCase } from './application/usecases/reset-password.usecase';
+
+const userUseCases = [
+  CreateUserUseCase,
+  LoginUserUseCase,
+  RegistrationUserUseCase,
+  ConfirmRegistrationUseClass,
+  RegistrationUserUseCase,
+  SendRecoveryCodeUseClass,
+  ResetPasswordUseCase,
+];
 
 @Module({
   imports: [
@@ -36,6 +52,7 @@ import { SessionRepository } from './infrastructure/sessions/session.repository'
     SessionRepository,
     AuthService,
     CryptoService,
+    ...userUseCases,
   ],
   exports: [UserRepository],
 })

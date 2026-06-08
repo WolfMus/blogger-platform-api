@@ -13,15 +13,9 @@ export class UserRepository {
     private UserModel: UserModelType,
   ) {}
 
-  async findById(id: string): Promise<UserDocument> {
+  async findById(id: string): Promise<UserDocument | null> {
     const user = await this.UserModel.findById(id);
-    if (!user) {
-      throw new DomainException({
-        code: HttpStatus.NOT_FOUND,
-        message: 'Not Found',
-        extensions: [new Extension('User Not Found', 'id')],
-      });
-    }
+    if (!user) return null;
     return user;
   }
 

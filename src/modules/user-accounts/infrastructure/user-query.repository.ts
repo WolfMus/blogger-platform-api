@@ -6,12 +6,32 @@ import {
 } from '../domain/users/user.entity';
 import { UserPaginationRequest } from '../dto/user-pagination.request.dto';
 import { SortDirection } from '../../../core/dto/pagination.request.dto';
+import { UserResponseDto } from '../dto/user.response.dto';
+import { HttpStatus } from '@nestjs/common';
+import {
+  DomainException,
+  Extension,
+} from '../../../core/exceptions/domain-exception';
+import { UserMapper } from '../dto/mapper/user.mapper';
 
 export class UserQwRepository {
   constructor(
     @InjectModel(User.name)
     private UserModel: UserModelType,
+    private userMapper: UserMapper,
   ) {}
+
+  async findById(id: string): Promise<UserResponseDto> {
+    const user = await this.UserModel.findById(id);
+    if (!user) {
+      throw new DomainException({
+        code: HttpStatus.NOT_FOUND,
+        message: 'Not Found',
+        extensions: [new Extension('User Not Found', 'id')],
+      });
+    }
+    return this.userMapper.toResponseView(user);
+  }
 
   async findAll(pagination: UserPaginationRequest): Promise<{
     users: UserDocument[];
