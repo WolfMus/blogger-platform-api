@@ -43,4 +43,8 @@ export class CommentsService {
       totalCount,
     );
   }
+
+  async delete(id: string): Promise<void> {
+    return await this.commentsRepo.delete(id);
+  }
 }

@@ -72,4 +72,16 @@ export class CommentsRepository {
 
     return { comments, totalCount };
   }
+
+  async delete(id: string): Promise<void> {
+    const comment = await this.CommentModel.findByIdAndDelete(id);
+    if (!comment) {
+      throw new DomainException({
+        code: HttpStatus.NOT_FOUND,
+        message: 'Not Found',
+        extensions: [new Extension('Comment Not Found', 'id')],
+      });
+    }
+    return;
+  }
 }

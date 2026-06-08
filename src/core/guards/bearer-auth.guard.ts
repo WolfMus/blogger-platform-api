@@ -50,8 +50,6 @@ export class BearerAuthGuard implements CanActivate {
           extensions: [new Extension('Unauthorized', 'Auth')],
         });
       }
-
-      request['userId'] = decodedToken.sub;
       return true;
     }
     throw new DomainException({

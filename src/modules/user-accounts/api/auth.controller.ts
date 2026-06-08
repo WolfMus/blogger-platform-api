@@ -23,6 +23,7 @@ import { ConfirmRegistrationCommand } from '../application/usecases/confirm-regi
 import { ResendConfirmationCodeCommand } from '../application/usecases/resend-confirmation-code.usecase';
 import { SendRecoveryCodeCommand } from '../application/usecases/send-recovery-code.usecase';
 import { ResetPasswordCommand } from '../application/usecases/reset-password.usecase';
+import { LocalAuthGuard } from '../guards/local-auth.guard';
 
 interface Request {
   userId: string;
@@ -100,7 +101,7 @@ export class AuthController {
 
   // GET ME
   @HttpCode(HttpStatus.OK)
-  @UseGuards(BearerAuthGuard)
+  @UseGuards(BearerAuthGuard, LocalAuthGuard)
   @Get('/me')
   async getMeInfo(@Req() req: Request): Promise<{
     email: string;

@@ -8,7 +8,7 @@ export class CryptoService {
     return await bcrypt.hash(password, salt);
   }
 
-  compare(password: string, passwordHash: string) {
+  async compare(password: string, passwordHash: string): Promise<boolean> {
     return bcrypt.compare(password, passwordHash);
   }
 }

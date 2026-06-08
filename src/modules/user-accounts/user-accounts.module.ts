@@ -19,6 +19,7 @@ import { CreateUserUseCase } from './application/usecases/create-user.usecase';
 import { ConfirmRegistrationUseClass } from './application/usecases/confirm-registration.usecase';
 import { SendRecoveryCodeUseClass } from './application/usecases/send-recovery-code.usecase';
 import { ResetPasswordUseCase } from './application/usecases/reset-password.usecase';
+import { PassportModule } from '@nestjs/passport';
 
 const userUseCases = [
   CreateUserUseCase,
@@ -42,6 +43,7 @@ const userUseCases = [
       secret: 'access-token-secret',
       signOptions: { expiresIn: '5m' },
     }),
+    PassportModule,
   ],
   controllers: [UserController, AuthController],
   providers: [
