@@ -34,6 +34,7 @@ import { DeletePostCommand } from '../application/usecases/delete-post.usecase';
 import { JwtAuthGuard } from '../../../user-accounts/guards/jwt-auth.guard';
 import { CommentResponseDto } from '../../comments/dto/comment.response.dto';
 import type { Request } from 'express';
+import { CreateCommentCommand } from '../../comments/application/usecases/create-comment.usecase';
 
 @ApiTags('Posts')
 @Controller('posts')
@@ -128,13 +129,20 @@ export class PostsController {
   }
 
   // POST COMMENT
-  // @UseGuards(JwtAuthGuard)
-  // @Post('/:id/comments')
-  // async createComment(
-  //   @Param('id') id: string,
-  //   @Req() req: Request,
-  // ): Promise<CommentResponseDto> {
-  //   const userId = (req.user as { userId: string; login: string }).userId;
-  //   return
-  // }
+  @UseGuards(JwtAuthGuard)
+  @Post('/:id/comments')
+  async createComment(
+    @Param('id') id: string,
+    @Body() body: { content: string },
+    @Req() req: Request,
+  ): Promise<CommentResponseDto> {
+    const userInfo: { userId: string; login: string } = req.user as {
+      userId: string;
+      login: string;
+    };
+    return await this.commandBus.execute<
+      CreateCommentCommand,
+      CommentResponseDto
+    >(new CreateCommentCommand(id, userInfo, body.content));
+  }
 }

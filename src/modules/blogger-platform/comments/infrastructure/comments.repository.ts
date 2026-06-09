@@ -18,15 +18,9 @@ export class CommentsRepository {
     private CommentModel: CommentModelType,
   ) {}
 
-  async findById(id: string): Promise<CommentDocument> {
+  async findById(id: string): Promise<CommentDocument | null> {
     const comment = await this.CommentModel.findById(id);
-    if (!comment) {
-      throw new DomainException({
-        code: HttpStatus.NOT_FOUND,
-        message: 'Not Found',
-        extensions: [new Extension('Comment Not Found', 'id')],
-      });
-    }
+    if (!comment) return null;
     return comment;
   }
 
@@ -71,6 +65,11 @@ export class CommentsRepository {
     });
 
     return { comments, totalCount };
+  }
+
+  async save(comment: CommentDocument): Promise<void> {
+    await comment.save();
+    return;
   }
 
   async delete(id: string): Promise<void> {

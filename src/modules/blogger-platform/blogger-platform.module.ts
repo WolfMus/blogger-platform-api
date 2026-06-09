@@ -23,10 +23,17 @@ import { BlogsQwRepository } from './blogs/infrastructure/query/blogs-query.repo
 import { CreatePostUseCase } from './posts/application/usecases/create-post.usecase';
 import { UpdatePostUseCase } from './posts/application/usecases/update-post.usecase';
 import { DeletePostUseCase } from './posts/application/usecases/delete-post.usecase';
+import { CreateCommentUseCase } from './comments/application/usecases/create-comment.usecase';
+import { UpdateCommentUseCase } from './comments/application/usecases/update-comment.usecase';
+import { ChangeLikeStatusUseCase } from './comments/application/usecases/change-like-status.usecase';
 
 const blogUseCases = [CreateBlogUseCase, UpdateBlogUseCase, DeleteBlogUseCase];
 const postUseCases = [CreatePostUseCase, UpdatePostUseCase, DeletePostUseCase];
-const commentUseCases = [];
+const commentUseCases = [
+  CreateCommentUseCase,
+  UpdateCommentUseCase,
+  ChangeLikeStatusUseCase,
+];
 
 @Module({
   imports: [

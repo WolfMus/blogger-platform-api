@@ -31,7 +31,7 @@ export class Comment {
   postId: string;
   @Prop({ type: Date, required: true })
   createdAt: Date;
-  @Prop({ type: LikesInfo, required: true })
+  @Prop({ type: LikesInfo, default: () => ({}) })
   likesInfo: LikesInfo;
 
   static createInstance(
@@ -41,10 +41,16 @@ export class Comment {
     const comment = new this();
     comment.content = dto.content;
     comment.postId = postId;
-    comment.commentatorInfo.userId = dto.userId;
-    comment.commentatorInfo.userLogin = dto.userLogin;
+    comment.commentatorInfo = {
+      userId: dto.userId,
+      userLogin: dto.userLogin,
+    };
     comment.createdAt = new Date();
     return comment as CommentDocument;
+  }
+
+  changeContent(content: string) {
+    this.content = content;
   }
 }
 
