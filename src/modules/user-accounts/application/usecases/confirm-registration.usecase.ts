@@ -20,7 +20,7 @@ export class ConfirmRegistrationUseClass implements ICommandHandler<
   async execute(command: ConfirmRegistrationCommand): Promise<void> {
     // find user by confirmation code
     const user = await this.userRepo.findByConfirmationCode(command.code);
-
+    console.log(user);
     // is code expired?
     if (user.confirmation.confirmationExpireDate!.getTime() < Date.now()) {
       throw new DomainException({
@@ -29,7 +29,7 @@ export class ConfirmRegistrationUseClass implements ICommandHandler<
         extensions: [new Extension('Code Expired', 'confirmationExpireDate')],
       });
     }
-
+    console.log('checked');
     // is status already true?
     if (user.confirmation.isConfirmed === true) {
       throw new DomainException({
