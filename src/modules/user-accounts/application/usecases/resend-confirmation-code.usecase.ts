@@ -12,7 +12,7 @@ export class ResendConfirmationCodeCommand {
 }
 
 @CommandHandler(ResendConfirmationCodeCommand)
-export class RegistrationUserUseCase implements ICommandHandler<
+export class ResendConfirmationCodeUseCase implements ICommandHandler<
   ResendConfirmationCodeCommand,
   void
 > {

@@ -10,6 +10,8 @@ import {
   Post,
   Put,
   Query,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiNoContentResponse,
@@ -29,6 +31,9 @@ import { CommandBus } from '@nestjs/cqrs';
 import { CreatePostCommand } from '../application/usecases/create-post.usecase';
 import { UpdatePostCommand } from '../application/usecases/update-post.usecase';
 import { DeletePostCommand } from '../application/usecases/delete-post.usecase';
+import { JwtAuthGuard } from '../../../user-accounts/guards/jwt-auth.guard';
+import { CommentResponseDto } from '../../comments/dto/comment.response.dto';
+import type { Request } from 'express';
 
 @ApiTags('Posts')
 @Controller('posts')
@@ -121,4 +126,15 @@ export class PostsController {
   ): Promise<PaginatedCommentResponseDto> {
     return await this.commentsService.findAllForPost(paginationInput, id);
   }
+
+  // POST COMMENT
+  // @UseGuards(JwtAuthGuard)
+  // @Post('/:id/comments')
+  // async createComment(
+  //   @Param('id') id: string,
+  //   @Req() req: Request,
+  // ): Promise<CommentResponseDto> {
+  //   const userId = (req.user as { userId: string; login: string }).userId;
+  //   return
+  // }
 }

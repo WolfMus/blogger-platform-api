@@ -6,7 +6,6 @@ import {
   HttpStatus,
   Post,
   Req,
-  Request,
   Res,
   UseGuards,
 } from '@nestjs/common';
@@ -14,8 +13,7 @@ import { CreateUserRequestDto } from '../dto/input/create-user.request.dto';
 import { UserService } from '../application/user.service';
 import { NewPasswordDto } from '../dto/input/new-password.dto';
 import { LoginUserRequestDto } from '../dto/input/login-user.request.dto';
-import { BearerAuthGuard } from '../../../core/guards/bearer-auth.guard';
-import type { Response } from 'express';
+import type { Request, Response } from 'express';
 import { CommandBus } from '@nestjs/cqrs';
 import { LoginUserCommand } from '../application/usecases/login.usecase';
 import { RegistrationUserCommand } from '../application/usecases/registration.usecase';
@@ -24,10 +22,7 @@ import { ResendConfirmationCodeCommand } from '../application/usecases/resend-co
 import { SendRecoveryCodeCommand } from '../application/usecases/send-recovery-code.usecase';
 import { ResetPasswordCommand } from '../application/usecases/reset-password.usecase';
 import { LocalAuthGuard } from '../guards/local-auth.guard';
-
-interface Request {
-  userId: string;
-}
+import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -38,6 +33,7 @@ export class AuthController {
 
   // LOGIN
   @HttpCode(HttpStatus.OK)
+  @UseGuards(LocalAuthGuard)
   @Post('/login')
   async loginUser(
     @Body() dto: LoginUserRequestDto,
@@ -101,15 +97,14 @@ export class AuthController {
 
   // GET ME
   @HttpCode(HttpStatus.OK)
-  @UseGuards(BearerAuthGuard, LocalAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Get('/me')
   async getMeInfo(@Req() req: Request): Promise<{
     email: string;
     login: string;
     userId: string;
   }> {
-    console.log(req.userId);
-    // const userId = req.user.userId;
-    return await this.userService.getMeInfo(req.userId);
+    const userId = (req.user as { userId: string; login: string }).userId;
+    return await this.userService.getMeInfo(userId);
   }
 }

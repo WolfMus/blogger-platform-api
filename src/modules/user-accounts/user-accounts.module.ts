@@ -20,6 +20,9 @@ import { ConfirmRegistrationUseClass } from './application/usecases/confirm-regi
 import { SendRecoveryCodeUseClass } from './application/usecases/send-recovery-code.usecase';
 import { ResetPasswordUseCase } from './application/usecases/reset-password.usecase';
 import { PassportModule } from '@nestjs/passport';
+import { LocalStrategy } from './guards/local.strategy';
+import { JwtStrategy } from './guards/jwt.strategy';
+import { ResendConfirmationCodeUseCase } from './application/usecases/resend-confirmation-code.usecase';
 
 const userUseCases = [
   CreateUserUseCase,
@@ -29,6 +32,7 @@ const userUseCases = [
   RegistrationUserUseCase,
   SendRecoveryCodeUseClass,
   ResetPasswordUseCase,
+  ResendConfirmationCodeUseCase,
 ];
 
 @Module({
@@ -40,7 +44,7 @@ const userUseCases = [
     NotificationsModule,
     JwtModule.register({
       global: true,
-      secret: 'access-token-secret',
+      secret: 'secret-key',
       signOptions: { expiresIn: '5m' },
     }),
     PassportModule,
@@ -55,7 +59,9 @@ const userUseCases = [
     AuthService,
     CryptoService,
     ...userUseCases,
+    LocalStrategy,
+    JwtStrategy,
   ],
-  exports: [UserRepository],
+  exports: [UserRepository, JwtStrategy],
 })
 export class UserAccountsModule {}

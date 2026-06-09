@@ -38,6 +38,13 @@ export class LoginUserUseCase implements ICommandHandler<LoginUserCommand> {
     const user = await this.userRepo.findByLoginOrEmail(
       command.dto.loginOrEmail,
     );
+    if (!user) {
+      throw new DomainException({
+        code: HttpStatus.BAD_REQUEST,
+        message: 'Not Found',
+        extensions: [new Extension('Confirmation Code Not Found', 'code')],
+      });
+    }
 
     // is password correct
     if (

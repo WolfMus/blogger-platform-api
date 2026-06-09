@@ -34,17 +34,11 @@ export class UserRepository {
     return;
   }
 
-  async findByLoginOrEmail(loginOrEmail: string): Promise<UserDocument> {
+  async findByLoginOrEmail(loginOrEmail: string): Promise<UserDocument | null> {
     const user = await this.UserModel.findOne({
       $or: [{ login: loginOrEmail }, { email: loginOrEmail }],
     });
-    if (!user) {
-      throw new DomainException({
-        code: HttpStatus.UNAUTHORIZED,
-        message: 'Exists',
-        extensions: [new Extension('User exist', 'email')],
-      });
-    }
+    if (!user) return null;
     return user;
   }
 

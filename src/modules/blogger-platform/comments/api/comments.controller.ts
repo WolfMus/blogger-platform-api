@@ -16,7 +16,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { ParseObjectIdPipe } from '@nestjs/mongoose';
-import { BearerAuthGuard } from '../../../../core/guards/bearer-auth.guard';
+import { JwtStrategy } from '../../../user-accounts/guards/jwt.strategy';
 
 @ApiTags('Comments')
 @Controller('comments')
@@ -40,7 +40,7 @@ export class CommentsController {
   @ApiOkResponse({ description: 'No Content' })
   @ApiNotFoundResponse({ description: 'Comment Not Found' })
   @HttpCode(HttpStatus.NO_CONTENT)
-  @UseGuards(BearerAuthGuard)
+  @UseGuards(JwtStrategy)
   @Delete('/:id')
   async delete(@Param('id', ParseObjectIdPipe) id: string): Promise<void> {
     return await this.commentsService.delete(id);
