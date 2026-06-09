@@ -10,7 +10,7 @@ export class EmailService {
       to: email,
       subject: 'Registration',
       text: 'Welcome',
-      html: `<h1>Thank for your registration</h1><p>To finish registration please follow the link below:<a href='http://localhost:${process.env.PORT}/auth/registration-confirmation?code=${confirmationCode}'>complete registration</a></p>`,
+      html: `<h1>Thank for your registration</h1><p>To finish registration please follow the link below:<a href='https://blogger-platform-api-lake.vercel.app/auth/registration-confirmation?code=${confirmationCode}'>complete registration</a></p>`,
     });
     console.log('Confirmation code: ', confirmationCode, ' - send to', email);
   }
