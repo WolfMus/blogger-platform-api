@@ -22,13 +22,12 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { ParseObjectIdPipe } from '@nestjs/mongoose';
-import { JwtStrategy } from '../../../user-accounts/guards/jwt.strategy';
 import { JwtAuthGuard } from '../../../user-accounts/guards/jwt-auth.guard';
 import { CommandBus } from '@nestjs/cqrs';
 import { UpdateCommentCommand } from '../application/usecases/update-comment.usecase';
 import type { Request } from 'express';
 import { LikeStatus } from '../../posts/domain/post.entity';
-import { ChangeLikeStatusCommand } from '../application/usecases/change-like-status.usecase';
+import { LikeCommentCommand } from '../application/usecases/change-like-status.usecase';
 
 @ApiTags('Comments')
 @Controller('comments')
@@ -76,24 +75,23 @@ export class CommentsController {
   @ApiOkResponse({ description: 'No Content' })
   @ApiNotFoundResponse({ description: 'Comment Not Found' })
   @HttpCode(HttpStatus.NO_CONTENT)
-  @UseGuards(JwtStrategy)
+  @UseGuards(JwtAuthGuard)
   @Delete('/:id')
   async delete(@Param('id', ParseObjectIdPipe) id: string): Promise<void> {
     return await this.commentsService.delete(id);
   }
 
   // LIKE/DISLIKE COMMMENT
-  @UseGuards(JwtStrategy)
-  @Post('/:id')
+  @UseGuards(JwtAuthGuard)
+  @Post('/:id/like-status')
   async changeLikeStatus(
     @Req() req: Request,
     @Param('id', ParseObjectIdPipe) id: string,
     @Body('likeStatus') likeStatus: LikeStatus,
   ): Promise<void> {
-    const userInfo = req.user as { userId: string, login: string };
-    await this.commandBus.execute<ChangeLikeStatusCommand, void>(
-      new ChangeLikeStatusCommand(id, likeStatus, userInfo),
+    const userInfo = req.user as { userId: string; login: string };
+    return await this.commandBus.execute<LikeCommentCommand, void>(
+      new LikeCommentCommand(id, likeStatus, userInfo),
     );
-    return;
   }
 }

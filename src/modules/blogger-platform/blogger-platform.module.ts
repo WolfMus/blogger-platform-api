@@ -25,14 +25,17 @@ import { UpdatePostUseCase } from './posts/application/usecases/update-post.usec
 import { DeletePostUseCase } from './posts/application/usecases/delete-post.usecase';
 import { CreateCommentUseCase } from './comments/application/usecases/create-comment.usecase';
 import { UpdateCommentUseCase } from './comments/application/usecases/update-comment.usecase';
-import { ChangeLikeStatusUseCase } from './comments/application/usecases/change-like-status.usecase';
+import { LikeCommentUseCase } from './comments/application/usecases/change-like-status.usecase';
+import { Like, LikeSchema } from './likes/domain/like.entity';
+import { LikesRepository } from './likes/infrastructure/likes.repository';
+import { UserAccountsModule } from '../user-accounts/user-accounts.module';
 
 const blogUseCases = [CreateBlogUseCase, UpdateBlogUseCase, DeleteBlogUseCase];
 const postUseCases = [CreatePostUseCase, UpdatePostUseCase, DeletePostUseCase];
 const commentUseCases = [
   CreateCommentUseCase,
   UpdateCommentUseCase,
-  ChangeLikeStatusUseCase,
+  LikeCommentUseCase,
 ];
 
 @Module({
@@ -41,7 +44,9 @@ const commentUseCases = [
       { name: Blog.name, schema: BlogSchema },
       { name: Post.name, schema: PostSchema },
       { name: Comment.name, schema: CommentSchema },
+      { name: Like.name, schema: LikeSchema },
     ]),
+    UserAccountsModule,
   ],
   controllers: [BlogsController, PostsController, CommentsController],
   providers: [
@@ -59,6 +64,7 @@ const commentUseCases = [
     CommentsService,
     CommentsRepository,
     CommentMapper,
+    LikesRepository,
   ],
 })
 export class BloggerPlatformModule {}

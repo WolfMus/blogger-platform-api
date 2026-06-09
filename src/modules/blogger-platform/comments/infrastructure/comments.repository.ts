@@ -83,4 +83,21 @@ export class CommentsRepository {
     }
     return;
   }
+
+  async changeCounts(
+    deltaLike: number,
+    deltaDislike: number,
+    id: string,
+  ): Promise<void> {
+    await this.CommentModel.findOneAndUpdate(
+      { _id: id },
+      {
+        $inc: {
+          'likesInfo.likesCount': deltaLike,
+          'likesInfo.dislikesCount': deltaDislike,
+        },
+      },
+    );
+    return;
+  }
 }
