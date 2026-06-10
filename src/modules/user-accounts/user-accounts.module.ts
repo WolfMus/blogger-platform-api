@@ -20,8 +20,8 @@ import { ConfirmRegistrationUseClass } from './application/usecases/confirm-regi
 import { SendRecoveryCodeUseClass } from './application/usecases/send-recovery-code.usecase';
 import { ResetPasswordUseCase } from './application/usecases/reset-password.usecase';
 import { PassportModule } from '@nestjs/passport';
-import { LocalStrategy } from './guards/local.strategy';
-import { JwtStrategy } from './guards/jwt.strategy';
+import { LocalStrategy } from './guards/local/local.strategy';
+import { JwtStrategy } from './guards/bearer/jwt.strategy';
 import { ResendConfirmationCodeUseCase } from './application/usecases/resend-confirmation-code.usecase';
 
 const userUseCases = [

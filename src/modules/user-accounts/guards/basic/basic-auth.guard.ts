@@ -5,7 +5,10 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { DomainException, Extension } from '../exceptions/domain-exception';
+import {
+  DomainException,
+  Extension,
+} from '../../../../core/exceptions/domain-exception';
 
 @Injectable()
 export class BasicAuthGuard implements CanActivate {

@@ -31,7 +31,7 @@ import { CommandBus } from '@nestjs/cqrs';
 import { CreatePostCommand } from '../application/usecases/create-post.usecase';
 import { UpdatePostCommand } from '../application/usecases/update-post.usecase';
 import { DeletePostCommand } from '../application/usecases/delete-post.usecase';
-import { JwtAuthGuard } from '../../../user-accounts/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../../../user-accounts/guards/bearer/jwt-auth.guard';
 import { CommentResponseDto } from '../../comments/dto/comment.response.dto';
 import type { Request } from 'express';
 import { CreateCommentCommand } from '../../comments/application/usecases/create-comment.usecase';

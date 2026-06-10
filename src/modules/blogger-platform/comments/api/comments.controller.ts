@@ -22,7 +22,7 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { ParseObjectIdPipe } from '@nestjs/mongoose';
-import { JwtAuthGuard } from '../../../user-accounts/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../../../user-accounts/guards/bearer/jwt-auth.guard';
 import { CommandBus } from '@nestjs/cqrs';
 import { UpdateCommentCommand } from '../application/usecases/update-comment.usecase';
 import type { Request } from 'express';

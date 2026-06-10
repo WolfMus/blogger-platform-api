@@ -21,8 +21,8 @@ import { ConfirmRegistrationCommand } from '../application/usecases/confirm-regi
 import { ResendConfirmationCodeCommand } from '../application/usecases/resend-confirmation-code.usecase';
 import { SendRecoveryCodeCommand } from '../application/usecases/send-recovery-code.usecase';
 import { ResetPasswordCommand } from '../application/usecases/reset-password.usecase';
-import { LocalAuthGuard } from '../guards/local-auth.guard';
-import { JwtAuthGuard } from '../guards/jwt-auth.guard';
+import { LocalAuthGuard } from '../guards/local/local-auth.guard';
+import { JwtAuthGuard } from '../guards/bearer/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
