@@ -1,16 +1,24 @@
 import { PaginationInput } from '../../../../../core/dto/pagination.request.dto';
+import { LikeStatus } from '../../../posts/domain/post.entity';
 import { CommentDocument } from '../../domain/comment.entity';
 import { CommentResponseDto } from '../comment.response.dto';
 import { PaginatedCommentResponseDto } from '../paginated-comment.response.dto';
 
 export class CommentMapper {
-  toResponseView(comment: CommentDocument): CommentResponseDto {
+  toResponseView(
+    comment: CommentDocument,
+    likeStatus: LikeStatus = LikeStatus.None,
+  ): CommentResponseDto {
     return {
       id: comment._id.toString(),
       content: comment.content,
       commentatorInfo: comment.commentatorInfo,
       createdAt: comment.createdAt,
-      likesInfo: comment.likesInfo,
+      likesInfo: {
+        likesCount: comment.likesInfo.likesCount,
+        dislikesCount: comment.likesInfo.dislikesCount,
+        myStatus: likeStatus,
+      },
     };
   }
 

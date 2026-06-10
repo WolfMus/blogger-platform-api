@@ -8,15 +8,20 @@ import {
   DomainException,
   Extension,
 } from '../../../../core/exceptions/domain-exception';
+import { LikesRepository } from '../../likes/infrastructure/likes.repository';
 
 @Injectable()
 export class CommentsService {
   constructor(
     private commentsRepo: CommentsRepository,
     private commentMapper: CommentMapper,
+    private likesRepo: LikesRepository,
   ) {}
 
-  async findById(id: string): Promise<CommentResponseDto> {
+  async findById(
+    id: string,
+    userId: string | null,
+  ): Promise<CommentResponseDto> {
     const comment = await this.commentsRepo.findById(id);
     if (!comment) {
       throw new DomainException({
@@ -25,7 +30,19 @@ export class CommentsService {
         extensions: [new Extension('Comment', 'Comment Not Found')],
       });
     }
-    return this.commentMapper.toResponseView(comment);
+    if (!userId) {
+      return this.commentMapper.toResponseView(comment);
+    }
+
+    const like = await this.likesRepo.findByEntityIdAndUserId(id, userId);
+    if (!like) {
+      throw new DomainException({
+        code: HttpStatus.NOT_FOUND,
+        message: 'Not Found',
+        extensions: [new Extension('like and user id', 'Like Not Found')],
+      });
+    }
+    return this.commentMapper.toResponseView(comment, like.likeStatus);
   }
 
   async findAll(

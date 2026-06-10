@@ -9,6 +9,10 @@ import type { CommentModelType } from '../../modules/blogger-platform/comments/d
 import { ApiNoContentResponse } from '@nestjs/swagger';
 import { User } from '../../modules/user-accounts/domain/users/user.entity';
 import type { UserModelType } from '../../modules/user-accounts/domain/users/user.entity';
+import {
+  Like,
+  type LikeModelType,
+} from '../../modules/blogger-platform/likes/domain/like.entity';
 
 @Controller('testing')
 export class TestingController {
@@ -21,6 +25,8 @@ export class TestingController {
     private CommentModel: CommentModelType,
     @InjectModel(User.name)
     private UserModel: UserModelType,
+    @InjectModel(Like.name)
+    private LikeModel: LikeModelType,
   ) {}
   @ApiNoContentResponse()
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -30,6 +36,7 @@ export class TestingController {
     await this.PostModel.deleteMany();
     await this.CommentModel.deleteMany();
     await this.UserModel.deleteMany();
+    await this.LikeModel.deleteMany();
     return;
   }
 }

@@ -13,7 +13,14 @@ import {
   PostSchema,
 } from '../modules/blogger-platform/posts/domain/post.entity';
 import { Module } from '@nestjs/common';
-import { User, UserSchema } from '../modules/user-accounts/domain/users/user.entity';
+import {
+  User,
+  UserSchema,
+} from '../modules/user-accounts/domain/users/user.entity';
+import {
+  Like,
+  LikeSchema,
+} from '../modules/blogger-platform/likes/domain/like.entity';
 
 @Module({
   imports: [
@@ -22,6 +29,7 @@ import { User, UserSchema } from '../modules/user-accounts/domain/users/user.ent
       { name: Post.name, schema: PostSchema },
       { name: Comment.name, schema: CommentSchema },
       { name: User.name, schema: UserSchema },
+      { name: Like.name, schema: LikeSchema },
     ]),
   ],
   controllers: [TestingController],

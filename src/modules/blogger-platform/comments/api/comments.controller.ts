@@ -27,7 +27,8 @@ import { CommandBus } from '@nestjs/cqrs';
 import { UpdateCommentCommand } from '../application/usecases/update-comment.usecase';
 import type { Request } from 'express';
 import { LikeStatus } from '../../posts/domain/post.entity';
-import { LikeCommentCommand } from '../application/usecases/change-like-status.usecase';
+import { LikeCommentCommand } from '../application/usecases/like-comment.usecase';
+import { OptionalJwtAuthGuard } from '../../../user-accounts/guards/bearer/optional-jwt-auth.guard';
 
 @ApiTags('Comments')
 @Controller('comments')
@@ -42,11 +43,14 @@ export class CommentsController {
   @ApiOkResponse({ type: CommentResponseDto, description: 'Success' })
   @ApiNotFoundResponse({ description: 'Comment Not Found' })
   @HttpCode(HttpStatus.OK)
+  @UseGuards(OptionalJwtAuthGuard)
   @Get('/:id')
   async getOne(
     @Param('id', ParseObjectIdPipe) id: string,
+    @Req() req: Request,
   ): Promise<CommentResponseDto> {
-    return await this.commentsService.findById(id);
+    const userInfo = req.user as { userId: string; login: string };
+    return await this.commentsService.findById(id, userInfo.userId);
   }
 
   // UPDATE COMMENT

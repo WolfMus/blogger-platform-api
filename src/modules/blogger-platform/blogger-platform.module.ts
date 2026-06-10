@@ -25,7 +25,7 @@ import { UpdatePostUseCase } from './posts/application/usecases/update-post.usec
 import { DeletePostUseCase } from './posts/application/usecases/delete-post.usecase';
 import { CreateCommentUseCase } from './comments/application/usecases/create-comment.usecase';
 import { UpdateCommentUseCase } from './comments/application/usecases/update-comment.usecase';
-import { LikeCommentUseCase } from './comments/application/usecases/change-like-status.usecase';
+import { LikeCommentUseCase } from './comments/application/usecases/like-comment.usecase';
 import { Like, LikeSchema } from './likes/domain/like.entity';
 import { LikesRepository } from './likes/infrastructure/likes.repository';
 import { UserAccountsModule } from '../user-accounts/user-accounts.module';

@@ -23,9 +23,9 @@ import {
 import { PaginatedUserResponseDto } from '../dto/post-paginated-view.response.dto';
 import { UserPaginationRequest } from '../dto/user-pagination.request.dto';
 import { IsObjectIdPipe } from '@nestjs/mongoose';
-import { BasicAuthGuard } from '../../../core/guards/basic-auth.guard';
 import { CommandBus } from '@nestjs/cqrs';
 import { CreateUserCommand } from '../application/usecases/create-user.usecase';
+import { BasicAuthGuard } from '../guards/basic/basic-auth.guard';
 
 @UseGuards(BasicAuthGuard)
 @Controller('users')

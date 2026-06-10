@@ -59,6 +59,7 @@ export class LikeCommentUseCase implements ICommandHandler<
     let deltaLike = 0;
     let deltaDislike = 0;
 
+    // Предыдущий статус
     if (like) {
       if (like.likeStatus === LikeStatus.Like) deltaLike = -1;
       if (like.likeStatus === LikeStatus.Dislike) deltaDislike = -1;
@@ -66,9 +67,14 @@ export class LikeCommentUseCase implements ICommandHandler<
       await this.likeRepo.save(like);
     }
 
+    // Новый статус
     if (command.likeStatus === LikeStatus.Like) deltaLike += 1;
     if (command.likeStatus === LikeStatus.Dislike) deltaDislike += 1;
 
+    /*
+     * если лайк был и приходит None => удаляем лайк
+     * иначе если лайка не было, то создаем сущность и сохраняем в бд
+     */
     if (command.likeStatus === LikeStatus.None) {
       await this.likeRepo.delete(like!._id.toString());
     } else if (!like) {
@@ -80,7 +86,7 @@ export class LikeCommentUseCase implements ICommandHandler<
       });
       await this.likeRepo.save(newLike);
     }
-
+    // Меняем счетчик в БД
     await this.commentRepo.changeCounts(deltaLike, deltaDislike, command.id);
     return;
   }
