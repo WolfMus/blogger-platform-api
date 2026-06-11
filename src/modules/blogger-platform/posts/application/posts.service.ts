@@ -1,6 +1,6 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Post, type PostModelType } from '../domain/post.entity';
+import { LikeStatus, Post, type PostModelType } from '../domain/post.entity';
 import {
   CreatePostForBlogRequestDto,
   CreatePostRequestDto,
@@ -15,6 +15,7 @@ import {
   DomainException,
   Extension,
 } from '../../../../core/exceptions/domain-exception';
+import { LikesRepository } from '../../likes/infrastructure/likes.repository';
 
 @Injectable()
 export class PostsService {
@@ -24,17 +25,43 @@ export class PostsService {
     private postsRepo: PostsRepository,
     private postsQueryRepo: PostsQwRepository,
     private postMapper: PostMapper,
+    private likesRepo: LikesRepository,
   ) {}
 
   async findAll(
     paginationInput: PaginationInput,
+    userId: string | null,
   ): Promise<PaginatedPostResponseDto> {
     const { posts, totalCount } =
       await this.postsQueryRepo.findAll(paginationInput);
+
+    if (!userId) {
+      return this.postMapper.toResponsePaginatedView(
+        posts,
+        paginationInput,
+        totalCount,
+      );
+    }
+    const postsIds = posts.map((post) => {
+      return post._id.toString();
+    });
+    const statuses = await this.likesRepo.findEntityIdAndLikeStatus(
+      postsIds,
+      userId,
+    );
+    if (!statuses) {
+      return this.postMapper.toResponsePaginatedView(
+        posts,
+        paginationInput,
+        totalCount,
+      );
+    }
+    const statusMap: Record<string, LikeStatus> = Object.fromEntries(statuses);
     return this.postMapper.toResponsePaginatedView(
       posts,
-      totalCount,
       paginationInput,
+      totalCount,
+      statusMap,
     );
   }
 
@@ -48,13 +75,13 @@ export class PostsService {
     );
     return this.postMapper.toResponsePaginatedView(
       posts,
-      totalCount,
       paginationInput,
+      totalCount,
     );
   }
 
-  async findById(id: string): Promise<PostResponseDto> {
-    const post = await this.postsQueryRepo.findById(id);
+  async findById(id: string, userId: string | null): Promise<PostResponseDto> {
+    const post = await this.postsRepo.findById(id);
     if (!post) {
       throw new DomainException({
         code: HttpStatus.NOT_FOUND,
@@ -62,7 +89,16 @@ export class PostsService {
         extensions: [new Extension('Post Not Found', 'id')],
       });
     }
-    return post;
+    if (!userId) return this.postMapper.toResponseView(post);
+    const like = await this.likesRepo.findByEntityIdAndUserId(id, userId);
+    if (!like) {
+      throw new DomainException({
+        code: HttpStatus.NOT_FOUND,
+        message: 'Not Found',
+        extensions: [new Extension('like and user id', 'Like Not Found')],
+      });
+    }
+    return this.postMapper.toResponseView(post, like.likeStatus);
   }
 
   async create(

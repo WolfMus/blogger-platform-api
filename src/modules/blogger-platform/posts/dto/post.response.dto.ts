@@ -36,7 +36,10 @@ export class PostResponseDto {
     newestLikes: [];
   };
 
-  static mapToView(post: PostDocument): PostResponseDto {
+  static mapToView(
+    post: PostDocument,
+    likeStatus: LikeStatus = LikeStatus.None,
+  ): PostResponseDto {
     return {
       id: post._id.toString(),
       title: post.title,
@@ -48,7 +51,7 @@ export class PostResponseDto {
       extendedLikesInfo: {
         likesCount: post.extendedLikesInfo.likesCount,
         dislikesCount: post.extendedLikesInfo.dislikesCount,
-        myStatus: post.extendedLikesInfo.myStatus as LikeStatus,
+        myStatus: likeStatus,
         newestLikes: [],
       },
     };

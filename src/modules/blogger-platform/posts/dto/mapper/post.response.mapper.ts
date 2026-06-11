@@ -6,7 +6,10 @@ import { PaginatedPostResponseDto } from '../post-paginated-view.response.dto';
 
 @Injectable()
 export class PostMapper {
-  toResponseView(post: PostDocument): PostResponseDto {
+  toResponseView(
+    post: PostDocument,
+    likeStatus: LikeStatus = LikeStatus.None,
+  ): PostResponseDto {
     return {
       id: post._id.toString(),
       title: post.title,
@@ -18,7 +21,7 @@ export class PostMapper {
       extendedLikesInfo: {
         likesCount: post.extendedLikesInfo.likesCount,
         dislikesCount: post.extendedLikesInfo.dislikesCount,
-        myStatus: post.extendedLikesInfo.myStatus as LikeStatus,
+        myStatus: likeStatus,
         newestLikes: [],
       },
     };
@@ -26,8 +29,9 @@ export class PostMapper {
 
   toResponsePaginatedView(
     posts: PostDocument[],
-    totalCount: number,
     paginationInput: PaginationInput,
+    totalCount: number,
+    statusMap: Record<string, LikeStatus> | null = null,
   ): PaginatedPostResponseDto {
     const pageNumber = paginationInput.pageNumber ?? 1;
     const pageSize = paginationInput.pageSize ?? 10;
@@ -36,7 +40,13 @@ export class PostMapper {
       page: +pageNumber,
       pageSize: +pageSize,
       totalCount: totalCount,
-      items: posts.map((post) => this.toResponseView(post)),
+      items: posts.map((post) => {
+        if (!statusMap) {
+          return this.toResponseView(post);
+        }
+        const likeStatus = statusMap[post._id.toString()];
+        return this.toResponseView(post, likeStatus);
+      }),
     };
   }
 }

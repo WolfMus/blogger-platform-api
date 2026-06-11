@@ -88,7 +88,7 @@ export class CommentsController {
   // LIKE/DISLIKE COMMMENT
   @UseGuards(JwtAuthGuard)
   @Post('/:id/like-status')
-  async changeLikeStatus(
+  async likeComment(
     @Req() req: Request,
     @Param('id', ParseObjectIdPipe) id: string,
     @Body('likeStatus') likeStatus: LikeStatus,

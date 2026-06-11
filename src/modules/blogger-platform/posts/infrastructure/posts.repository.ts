@@ -26,4 +26,22 @@ export class PostsRepository {
     if (!deletedPost) return null;
     return deletedPost;
   }
+
+  async changeCounts(
+    deltaLike: number,
+    deltaDislike: number,
+    id: string,
+  ): Promise<void> {
+    console.log(deltaLike, deltaDislike);
+    await this.PostModel.findOneAndUpdate(
+      { _id: id },
+      {
+        $inc: {
+          'extendedLikesInfo.likesCount': deltaLike,
+          'extendedLikesInfo.dislikesCount': deltaDislike,
+        },
+      },
+    );
+    return;
+  }
 }

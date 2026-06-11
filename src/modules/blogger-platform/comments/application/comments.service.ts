@@ -9,6 +9,7 @@ import {
   Extension,
 } from '../../../../core/exceptions/domain-exception';
 import { LikesRepository } from '../../likes/infrastructure/likes.repository';
+import { LikeStatus } from '../../posts/domain/post.entity';
 
 @Injectable()
 export class CommentsService {
@@ -60,15 +61,41 @@ export class CommentsService {
   async findAllForPost(
     paginationInput: PaginationInput,
     postId: string,
+    userId: string | null = null,
   ): Promise<PaginatedCommentResponseDto> {
     const { comments, totalCount } = await this.commentsRepo.findAllForPost(
       paginationInput,
       postId,
     );
+
+    if (!userId) {
+      return this.commentMapper.toResponsePaginatedView(
+        comments,
+        paginationInput,
+        totalCount,
+      );
+    }
+
+    const commentsIds = comments.map((comment) => {
+      return comment._id.toString();
+    });
+    const statuses = await this.likesRepo.findEntityIdAndLikeStatus(
+      commentsIds,
+      userId,
+    );
+    if (!statuses) {
+      return this.commentMapper.toResponsePaginatedView(
+        comments,
+        paginationInput,
+        totalCount,
+      );
+    }
+    const statusMap: Record<string, LikeStatus> = Object.fromEntries(statuses);
     return this.commentMapper.toResponsePaginatedView(
       comments,
       paginationInput,
       totalCount,
+      statusMap,
     );
   }
 

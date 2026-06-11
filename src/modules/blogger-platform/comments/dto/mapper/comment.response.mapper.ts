@@ -26,6 +26,7 @@ export class CommentMapper {
     comments: CommentDocument[],
     paginationInput: PaginationInput,
     totalCount: number,
+    statusMap: Record<string, LikeStatus> | null = null,
   ): PaginatedCommentResponseDto {
     const pageNumber = paginationInput.pageNumber ?? 1;
     const pageSize = paginationInput.pageSize ?? 10;
@@ -34,7 +35,13 @@ export class CommentMapper {
       page: +pageNumber,
       pageSize: +pageSize,
       totalCount: totalCount,
-      items: comments.map((comment) => this.toResponseView(comment)),
+      items: comments.map((comment) => {
+        if (!statusMap) {
+          return this.toResponseView(comment);
+        }
+        const likeStatus = statusMap[comment._id.toString()];
+        return this.toResponseView(comment, likeStatus);
+      }),
     };
   }
 }

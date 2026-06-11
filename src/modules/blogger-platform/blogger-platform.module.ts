@@ -29,9 +29,15 @@ import { LikeCommentUseCase } from './comments/application/usecases/like-comment
 import { Like, LikeSchema } from './likes/domain/like.entity';
 import { LikesRepository } from './likes/infrastructure/likes.repository';
 import { UserAccountsModule } from '../user-accounts/user-accounts.module';
+import { LikePostUseCase } from './posts/application/usecases/like-post.usecase';
 
 const blogUseCases = [CreateBlogUseCase, UpdateBlogUseCase, DeleteBlogUseCase];
-const postUseCases = [CreatePostUseCase, UpdatePostUseCase, DeletePostUseCase];
+const postUseCases = [
+  CreatePostUseCase,
+  UpdatePostUseCase,
+  DeletePostUseCase,
+  LikePostUseCase,
+];
 const commentUseCases = [
   CreateCommentUseCase,
   UpdateCommentUseCase,

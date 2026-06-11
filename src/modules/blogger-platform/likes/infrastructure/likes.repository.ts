@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Like, LikeDocument, type LikeModelType } from '../domain/like.entity';
+import { LikeStatus } from '../../posts/domain/post.entity';
 
 @Injectable()
 export class LikesRepository {
@@ -20,7 +21,7 @@ export class LikesRepository {
   }
 
   async findByEntityIdAndUserId(
-    entityId: string,
+    entityId: string | string[],
     userId: string,
   ): Promise<LikeDocument | null> {
     const like = await this.LikeModel.findOne({
@@ -29,5 +30,17 @@ export class LikesRepository {
     });
     if (!like) return null;
     return like;
+  }
+
+  async findEntityIdAndLikeStatus(
+    entityId: string[],
+    userId: string,
+  ): Promise<[string, LikeStatus][] | null> {
+    const likes = await this.LikeModel.find({
+      entityId: entityId,
+      userId: userId,
+    });
+    if (!likes) return null;
+    return likes.map((like) => [like.entityId, like.likeStatus]);
   }
 }

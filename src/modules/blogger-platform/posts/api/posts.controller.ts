@@ -6,7 +6,6 @@ import {
   HttpCode,
   HttpStatus,
   Param,
-  ParseIntPipe,
   Post,
   Put,
   Query,
@@ -35,6 +34,10 @@ import { JwtAuthGuard } from '../../../user-accounts/guards/bearer/jwt-auth.guar
 import { CommentResponseDto } from '../../comments/dto/comment.response.dto';
 import type { Request } from 'express';
 import { CreateCommentCommand } from '../../comments/application/usecases/create-comment.usecase';
+import { OptionalJwtAuthGuard } from '../../../user-accounts/guards/bearer/optional-jwt-auth.guard';
+import { ParseObjectIdPipe } from '@nestjs/mongoose';
+import { LikeStatus } from '../domain/post.entity';
+import { LikePostCommand } from '../application/usecases/like-post.usecase';
 
 @ApiTags('Posts')
 @Controller('posts')
@@ -63,9 +66,14 @@ export class PostsController {
   @ApiOkResponse({ type: PostResponseDto, description: 'Success' })
   @ApiNotFoundResponse({ description: 'Post Not Found' })
   @HttpCode(HttpStatus.OK)
+  @UseGuards(OptionalJwtAuthGuard)
   @Get('/:id')
-  async getPost(@Param('id') id: string): Promise<PostResponseDto> {
-    return await this.postsService.findById(id);
+  async getPost(
+    @Param('id') id: string,
+    @Req() req: Request,
+  ): Promise<PostResponseDto> {
+    const userInfo = req.user as { userId: string; login: string };
+    return await this.postsService.findById(id, userInfo.userId);
   }
 
   // FIND ALL POSTS WITH PAGINATION
@@ -75,11 +83,17 @@ export class PostsController {
     description: 'Success',
   })
   @HttpCode(HttpStatus.OK)
+  @UseGuards(OptionalJwtAuthGuard)
   @Get()
   async getAllPosts(
     @Query() paginationInput: PaginationInput,
+    @Req() req: Request,
   ): Promise<PaginatedPostResponseDto> {
-    const posts = await this.postsService.findAll(paginationInput);
+    const userInfo = req.user as { userId: string; login: string };
+    const posts = await this.postsService.findAll(
+      paginationInput,
+      userInfo.userId,
+    );
     return posts;
   }
 
@@ -110,6 +124,20 @@ export class PostsController {
     );
   }
 
+  // LIKE/DISLIKE POST
+  @UseGuards(JwtAuthGuard)
+  @Post('/:id/like-status')
+  async likePost(
+    @Req() req: Request,
+    @Param('id', ParseObjectIdPipe) id: string,
+    @Body('likeStatus') likeStatus: LikeStatus,
+  ): Promise<void> {
+    const userInfo = req.user as { userId: string; login: string };
+    return await this.commandBus.execute<LikePostCommand, void>(
+      new LikePostCommand(id, likeStatus, userInfo),
+    );
+  }
+
   // ======== COMMENTS ========
   // GET ALL COMMENTS BY POSTID
   @ApiOperation({
@@ -120,12 +148,19 @@ export class PostsController {
     description: 'Success',
   })
   @HttpCode(HttpStatus.OK)
+  @UseGuards(OptionalJwtAuthGuard)
   @Get('/:id/comments')
   async getAllForPost(
     @Query() paginationInput: PaginationInput,
-    @Param('id', ParseIntPipe) id: string,
+    @Param('id', ParseObjectIdPipe) id: string,
+    @Req() req: Request,
   ): Promise<PaginatedCommentResponseDto> {
-    return await this.commentsService.findAllForPost(paginationInput, id);
+    const userInfo = req.user as { userId: string; login: string };
+    return await this.commentsService.findAllForPost(
+      paginationInput,
+      id,
+      userInfo.userId,
+    );
   }
 
   // POST COMMENT

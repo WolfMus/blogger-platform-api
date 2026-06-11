@@ -1,0 +1,90 @@
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { LikeStatus } from '../../../posts/domain/post.entity';
+import {
+  DomainException,
+  Extension,
+} from '../../../../../core/exceptions/domain-exception';
+import { HttpStatus } from '@nestjs/common';
+import {
+  EntityType,
+  Like,
+  type LikeModelType,
+} from '../../../likes/domain/like.entity';
+import { InjectModel } from '@nestjs/mongoose';
+import { LikesRepository } from '../../../likes/infrastructure/likes.repository';
+import { PostsRepository } from '../../infrastructure/posts.repository';
+
+export class LikePostCommand {
+  constructor(
+    public id: string,
+    public likeStatus: LikeStatus,
+    public userInfo: { userId: string; login: string },
+  ) {}
+}
+
+@CommandHandler(LikePostCommand)
+export class LikePostUseCase implements ICommandHandler<LikePostCommand, void> {
+  constructor(
+    @InjectModel(Like.name)
+    private LikeModel: LikeModelType,
+    private likeRepo: LikesRepository,
+    private postRepo: PostsRepository,
+  ) {}
+  async execute(command: LikePostCommand): Promise<void> {
+    // Поиск поста
+    const post = await this.postRepo.findById(command.id);
+    if (!post) {
+      throw new DomainException({
+        code: HttpStatus.NOT_FOUND,
+        message: 'Not Found',
+        extensions: [new Extension('id', 'Post Not Found')],
+      });
+    }
+
+    // Поиск лайка
+    const like = await this.likeRepo.findByEntityIdAndUserId(
+      command.id,
+      command.userInfo.userId,
+    );
+    if (
+      (like && command.likeStatus === like.likeStatus) ||
+      (!like && command.likeStatus === LikeStatus.None)
+    ) {
+      return;
+    }
+
+    let deltaLike = 0;
+    let deltaDislike = 0;
+
+    // Предыдущий статус
+    if (like) {
+      if (like.likeStatus === LikeStatus.Like) deltaLike = -1;
+      if (like.likeStatus === LikeStatus.Dislike) deltaDislike = -1;
+      like.changeStatus(command.likeStatus);
+      await this.likeRepo.save(like);
+    }
+
+    // Новый статус
+    if (command.likeStatus === LikeStatus.Like) deltaLike += 1;
+    if (command.likeStatus === LikeStatus.Dislike) deltaDislike += 1;
+
+    /*
+     * если лайк был и приходит None => удаляем лайк
+     * иначе если лайка не было, то создаем сущность и сохраняем в бд
+     */
+    if (command.likeStatus === LikeStatus.None) {
+      await this.likeRepo.delete(like!._id.toString());
+    } else if (!like) {
+      const newLike = this.LikeModel.createInstance({
+        entityId: command.id,
+        entityType: EntityType.Post,
+        userId: command.userInfo.userId,
+        likeStatus: command.likeStatus,
+      });
+      await this.likeRepo.save(newLike);
+    }
+    // Меняем счетчик в БД
+    await this.postRepo.changeCounts(deltaLike, deltaDislike, command.id);
+    return;
+  }
+}
