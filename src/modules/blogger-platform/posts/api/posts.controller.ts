@@ -136,8 +136,9 @@ export class PostsController {
   async likePost(
     @Req() req: Request,
     @Param('postId', ParseObjectIdPipe) postId: string,
-    @Body('likeStatus') dto: LikeRequestDto,
+    @Body() dto: LikeRequestDto,
   ): Promise<void> {
+    console.log('like status - ', dto.likeStatus);
     const userInfo = req.user as { userId: string; login: string };
     return await this.commandBus.execute<LikePostCommand, void>(
       new LikePostCommand(postId, dto, userInfo),
