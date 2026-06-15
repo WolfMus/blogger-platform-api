@@ -16,7 +16,7 @@ import { LikesRepository } from '../../../likes/infrastructure/likes.repository'
 
 export class LikeCommentCommand {
   constructor(
-    public id: string,
+    public commentId: string,
     public likeStatus: LikeStatus,
     public userInfo: { userId: string; login: string },
   ) {}
@@ -35,7 +35,7 @@ export class LikeCommentUseCase implements ICommandHandler<
   ) {}
   async execute(command: LikeCommentCommand): Promise<void> {
     // Поиск комментария
-    const comment = await this.commentRepo.findById(command.id);
+    const comment = await this.commentRepo.findById(command.commentId);
     if (!comment) {
       throw new DomainException({
         code: HttpStatus.NOT_FOUND,
@@ -46,7 +46,7 @@ export class LikeCommentUseCase implements ICommandHandler<
 
     // Поиск лайка
     const like = await this.likeRepo.findByEntityIdAndUserId(
-      command.id,
+      command.commentId,
       command.userInfo.userId,
     );
     if (
@@ -79,7 +79,7 @@ export class LikeCommentUseCase implements ICommandHandler<
       await this.likeRepo.delete(like!._id.toString());
     } else if (!like) {
       const newLike = this.LikeModel.createInstance({
-        entityId: command.id,
+        entityId: command.commentId,
         entityType: EntityType.Comment,
         userId: command.userInfo.userId,
         likeStatus: command.likeStatus,
@@ -87,7 +87,11 @@ export class LikeCommentUseCase implements ICommandHandler<
       await this.likeRepo.save(newLike);
     }
     // Меняем счетчик в БД
-    await this.commentRepo.changeCounts(deltaLike, deltaDislike, command.id);
+    await this.commentRepo.changeCounts(
+      deltaLike,
+      deltaDislike,
+      command.commentId,
+    );
     return;
   }
 }

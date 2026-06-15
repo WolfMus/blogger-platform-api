@@ -9,6 +9,7 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { CreateBlogRequestDto } from '../dto/create-blog.request.dto';
 import { BlogsService } from '../application/blogs.service';
@@ -33,6 +34,7 @@ import { CommandBus } from '@nestjs/cqrs';
 import { UpdateBlogCommand } from '../application/usecases/update-blog.usecase';
 import { DeleteBlogCommand } from '../application/usecases/delete-blog.usecase';
 import { CreatePostCommand } from '../../posts/application/usecases/create-post.usecase';
+import { BasicAuthGuard } from '../../../user-accounts/guards/basic/basic-auth.guard';
 
 @ApiTags('Blogs')
 @Controller('blogs')
@@ -71,6 +73,7 @@ export class BlogsController {
   @ApiOperation({ summary: 'Create new blog' })
   @ApiOkResponse({ description: 'New blog created' })
   @HttpCode(HttpStatus.CREATED)
+  @UseGuards(BasicAuthGuard)
   @Post()
   async createBlog(
     @Body() dto: CreateBlogRequestDto,
@@ -85,6 +88,7 @@ export class BlogsController {
   @ApiOkResponse({ description: 'No Content' })
   @ApiNotFoundResponse({ description: 'Not Found' })
   @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(BasicAuthGuard)
   @Put('/:id')
   async updateBlog(
     @Param('id', ParseObjectIdPipe) id: string,
@@ -100,6 +104,7 @@ export class BlogsController {
   @ApiOkResponse({ description: 'No Content' })
   @ApiNotFoundResponse({ description: 'Not Found' })
   @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(BasicAuthGuard)
   @Delete('/:id')
   async deleteBlog(@Param('id', ParseObjectIdPipe) id: number): Promise<void> {
     return await this.commandBus.execute<DeleteBlogCommand, void>(
@@ -138,6 +143,7 @@ export class BlogsController {
     description: 'Blog Not Found',
   })
   @HttpCode(HttpStatus.CREATED)
+  @UseGuards(BasicAuthGuard)
   @Post('/:id/posts')
   async createPostByBlogId(
     @Param('id', ParseObjectIdPipe) blogId: string,

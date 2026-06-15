@@ -126,15 +126,15 @@ export class PostsController {
 
   // LIKE/DISLIKE POST
   @UseGuards(JwtAuthGuard)
-  @Post('/:id/like-status')
+  @Post('/:postId/like-status')
   async likePost(
     @Req() req: Request,
-    @Param('id', ParseObjectIdPipe) id: string,
+    @Param('postId', ParseObjectIdPipe) postId: string,
     @Body('likeStatus') likeStatus: LikeStatus,
   ): Promise<void> {
     const userInfo = req.user as { userId: string; login: string };
     return await this.commandBus.execute<LikePostCommand, void>(
-      new LikePostCommand(id, likeStatus, userInfo),
+      new LikePostCommand(postId, likeStatus, userInfo),
     );
   }
 
@@ -164,6 +164,7 @@ export class PostsController {
   }
 
   // POST COMMENT
+  @HttpCode(HttpStatus.CREATED)
   @UseGuards(JwtAuthGuard)
   @Post('/:id/comments')
   async createComment(

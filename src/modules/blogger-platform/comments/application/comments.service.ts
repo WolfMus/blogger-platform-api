@@ -68,6 +68,14 @@ export class CommentsService {
       postId,
     );
 
+    if (!comments) {
+      throw new DomainException({
+        code: HttpStatus.NOT_FOUND,
+        message: 'Not Found',
+        extensions: [new Extension('Comments Not Found', 'postId')],
+      });
+    }
+
     if (!userId) {
       return this.commentMapper.toResponsePaginatedView(
         comments,
@@ -99,7 +107,15 @@ export class CommentsService {
     );
   }
 
-  async delete(id: string): Promise<void> {
+  async delete(id: string, userId: string): Promise<void> {
+    const comment = await this.commentsRepo.findById(id);
+    if (comment?.commentatorInfo.userId !== userId) {
+      throw new DomainException({
+        code: HttpStatus.FORBIDDEN,
+        message: 'Forbidden',
+        extensions: [new Extension('Wrong user id', 'userId')],
+      });
+    }
     return await this.commentsRepo.delete(id);
   }
 }

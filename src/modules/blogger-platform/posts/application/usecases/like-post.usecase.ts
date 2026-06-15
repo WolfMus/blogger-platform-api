@@ -16,7 +16,7 @@ import { PostsRepository } from '../../infrastructure/posts.repository';
 
 export class LikePostCommand {
   constructor(
-    public id: string,
+    public postId: string,
     public likeStatus: LikeStatus,
     public userInfo: { userId: string; login: string },
   ) {}
@@ -32,7 +32,7 @@ export class LikePostUseCase implements ICommandHandler<LikePostCommand, void> {
   ) {}
   async execute(command: LikePostCommand): Promise<void> {
     // Поиск поста
-    const post = await this.postRepo.findById(command.id);
+    const post = await this.postRepo.findById(command.postId);
     if (!post) {
       throw new DomainException({
         code: HttpStatus.NOT_FOUND,
@@ -43,7 +43,7 @@ export class LikePostUseCase implements ICommandHandler<LikePostCommand, void> {
 
     // Поиск лайка
     const like = await this.likeRepo.findByEntityIdAndUserId(
-      command.id,
+      command.postId,
       command.userInfo.userId,
     );
     if (
@@ -76,7 +76,7 @@ export class LikePostUseCase implements ICommandHandler<LikePostCommand, void> {
       await this.likeRepo.delete(like!._id.toString());
     } else if (!like) {
       const newLike = this.LikeModel.createInstance({
-        entityId: command.id,
+        entityId: command.postId,
         entityType: EntityType.Post,
         userId: command.userInfo.userId,
         likeStatus: command.likeStatus,
@@ -84,7 +84,7 @@ export class LikePostUseCase implements ICommandHandler<LikePostCommand, void> {
       await this.likeRepo.save(newLike);
     }
     // Меняем счетчик в БД
-    await this.postRepo.changeCounts(deltaLike, deltaDislike, command.id);
+    await this.postRepo.changeCounts(deltaLike, deltaDislike, command.postId);
     return;
   }
 }

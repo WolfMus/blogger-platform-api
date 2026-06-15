@@ -61,6 +61,7 @@ export class CommentsController {
     description: 'If try edit the comment that is not your own',
   })
   @ApiNotFoundResponse({ description: 'Comment Not Found' })
+  @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtAuthGuard)
   @Put('/:id')
   async update(
@@ -81,21 +82,25 @@ export class CommentsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtAuthGuard)
   @Delete('/:id')
-  async delete(@Param('id', ParseObjectIdPipe) id: string): Promise<void> {
-    return await this.commentsService.delete(id);
+  async delete(
+    @Req() req: Request,
+    @Param('id', ParseObjectIdPipe) id: string,
+  ): Promise<void> {
+    const userInfo = req.user as { userId: string; login: string };
+    return await this.commentsService.delete(id, userInfo.userId);
   }
 
   // LIKE/DISLIKE COMMMENT
   @UseGuards(JwtAuthGuard)
-  @Post('/:id/like-status')
+  @Post('/:commentId/like-status')
   async likeComment(
     @Req() req: Request,
-    @Param('id', ParseObjectIdPipe) id: string,
+    @Param('commentId', ParseObjectIdPipe) commentId: string,
     @Body('likeStatus') likeStatus: LikeStatus,
   ): Promise<void> {
     const userInfo = req.user as { userId: string; login: string };
     return await this.commandBus.execute<LikeCommentCommand, void>(
-      new LikeCommentCommand(id, likeStatus, userInfo),
+      new LikeCommentCommand(commentId, likeStatus, userInfo),
     );
   }
 }

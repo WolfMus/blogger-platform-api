@@ -10,7 +10,7 @@ const urlRegExp =
 })
 export class CreateBlogRequestDto {
   @ApiProperty({})
-  @Length(4, 15)
+  @Length(1, 15)
   @IsString()
   @Trim()
   name: string;
