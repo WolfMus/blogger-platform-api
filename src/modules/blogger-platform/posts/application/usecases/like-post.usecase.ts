@@ -13,11 +13,12 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { LikesRepository } from '../../../likes/infrastructure/likes.repository';
 import { PostsRepository } from '../../infrastructure/posts.repository';
+import { LikeRequestDto } from '../../../likes/dto/like.request.dto';
 
 export class LikePostCommand {
   constructor(
     public postId: string,
-    public likeStatus: LikeStatus,
+    public dto: LikeRequestDto,
     public userInfo: { userId: string; login: string },
   ) {}
 }
@@ -47,8 +48,8 @@ export class LikePostUseCase implements ICommandHandler<LikePostCommand, void> {
       command.userInfo.userId,
     );
     if (
-      (like && command.likeStatus === like.likeStatus) ||
-      (!like && command.likeStatus === LikeStatus.None)
+      (like && command.dto.likeStatus === like.likeStatus) ||
+      (!like && command.dto.likeStatus === LikeStatus.None)
     ) {
       return;
     }
@@ -60,26 +61,26 @@ export class LikePostUseCase implements ICommandHandler<LikePostCommand, void> {
     if (like) {
       if (like.likeStatus === LikeStatus.Like) deltaLike = -1;
       if (like.likeStatus === LikeStatus.Dislike) deltaDislike = -1;
-      like.changeStatus(command.likeStatus);
+      like.changeStatus(command.dto.likeStatus);
       await this.likeRepo.save(like);
     }
 
     // Новый статус
-    if (command.likeStatus === LikeStatus.Like) deltaLike += 1;
-    if (command.likeStatus === LikeStatus.Dislike) deltaDislike += 1;
+    if (command.dto.likeStatus === LikeStatus.Like) deltaLike += 1;
+    if (command.dto.likeStatus === LikeStatus.Dislike) deltaDislike += 1;
 
     /*
      * если лайк был и приходит None => удаляем лайк
      * иначе если лайка не было, то создаем сущность и сохраняем в бд
      */
-    if (command.likeStatus === LikeStatus.None) {
+    if (command.dto.likeStatus === LikeStatus.None) {
       await this.likeRepo.delete(like!._id.toString());
     } else if (!like) {
       const newLike = this.LikeModel.createInstance({
         entityId: command.postId,
         entityType: EntityType.Post,
         userId: command.userInfo.userId,
-        likeStatus: command.likeStatus,
+        likeStatus: command.dto.likeStatus,
       });
       await this.likeRepo.save(newLike);
     }

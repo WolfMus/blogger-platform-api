@@ -25,10 +25,10 @@ import { JwtAuthGuard } from '../../../user-accounts/guards/bearer/jwt-auth.guar
 import { CommandBus } from '@nestjs/cqrs';
 import { UpdateCommentCommand } from '../application/usecases/update-comment.usecase';
 import type { Request } from 'express';
-import { LikeStatus } from '../../posts/domain/post.entity';
 import { LikeCommentCommand } from '../application/usecases/like-comment.usecase';
 import { OptionalJwtAuthGuard } from '../../../user-accounts/guards/bearer/optional-jwt-auth.guard';
 import { CreateCommentRequestDto } from '../dto/create-comment.request.dto';
+import { LikeRequestDto } from '../../likes/dto/like.request.dto';
 
 @ApiTags('Comments')
 @Controller('comments')
@@ -91,16 +91,17 @@ export class CommentsController {
   }
 
   // LIKE/DISLIKE COMMMENT
+  @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtAuthGuard)
   @Put('/:commentId/like-status')
   async likeComment(
     @Req() req: Request,
     @Param('commentId', ParseObjectIdPipe) commentId: string,
-    @Body('likeStatus') likeStatus: LikeStatus,
+    @Body() dto: LikeRequestDto,
   ): Promise<void> {
     const userInfo = req.user as { userId: string; login: string };
     return await this.commandBus.execute<LikeCommentCommand, void>(
-      new LikeCommentCommand(commentId, likeStatus, userInfo),
+      new LikeCommentCommand(commentId, dto, userInfo),
     );
   }
 }

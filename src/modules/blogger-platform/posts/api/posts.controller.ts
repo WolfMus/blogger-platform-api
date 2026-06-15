@@ -36,9 +36,10 @@ import type { Request } from 'express';
 import { CreateCommentCommand } from '../../comments/application/usecases/create-comment.usecase';
 import { OptionalJwtAuthGuard } from '../../../user-accounts/guards/bearer/optional-jwt-auth.guard';
 import { ParseObjectIdPipe } from '@nestjs/mongoose';
-import { LikeStatus } from '../domain/post.entity';
 import { LikePostCommand } from '../application/usecases/like-post.usecase';
 import { CreateCommentRequestDto } from '../../comments/dto/create-comment.request.dto';
+import { BasicAuthGuard } from '../../../user-accounts/guards/basic/basic-auth.guard';
+import { LikeRequestDto } from '../../likes/dto/like.request.dto';
 
 @ApiTags('Posts')
 @Controller('posts')
@@ -53,6 +54,7 @@ export class PostsController {
   @ApiOperation({ summary: 'Returns created post' })
   @ApiOkResponse({ type: PostResponseDto, description: 'Post created' })
   @HttpCode(HttpStatus.CREATED)
+  @UseGuards(BasicAuthGuard)
   @Post()
   async createPost(
     @Body() dto: CreatePostRequestDto,
@@ -103,6 +105,7 @@ export class PostsController {
   @ApiNoContentResponse({ description: 'No Content' })
   @ApiNotFoundResponse({ description: 'Post Not Found' })
   @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(BasicAuthGuard)
   @Put('/:id')
   async updatePost(
     @Param('id') id: string,
@@ -118,6 +121,7 @@ export class PostsController {
   @ApiNoContentResponse({ description: 'No content' })
   @ApiNotFoundResponse({ description: 'Post Not Found' })
   @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(BasicAuthGuard)
   @Delete('/:id')
   async deletePost(@Param('id') id: string): Promise<void> {
     return this.commandBus.execute<DeletePostCommand, void>(
@@ -126,16 +130,17 @@ export class PostsController {
   }
 
   // LIKE/DISLIKE POST
+  @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtAuthGuard)
   @Put('/:postId/like-status')
   async likePost(
     @Req() req: Request,
     @Param('postId', ParseObjectIdPipe) postId: string,
-    @Body('likeStatus') likeStatus: LikeStatus,
+    @Body('likeStatus') dto: LikeRequestDto,
   ): Promise<void> {
     const userInfo = req.user as { userId: string; login: string };
     return await this.commandBus.execute<LikePostCommand, void>(
-      new LikePostCommand(postId, likeStatus, userInfo),
+      new LikePostCommand(postId, dto, userInfo),
     );
   }
 

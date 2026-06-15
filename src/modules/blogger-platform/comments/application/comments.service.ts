@@ -109,6 +109,13 @@ export class CommentsService {
 
   async delete(id: string, userId: string): Promise<void> {
     const comment = await this.commentsRepo.findById(id);
+    if (!comment) {
+      throw new DomainException({
+        code: HttpStatus.NOT_FOUND,
+        message: 'Not Found',
+        extensions: [new Extension('Comment Not Found', 'id')],
+      });
+    }
     if (comment?.commentatorInfo.userId !== userId) {
       throw new DomainException({
         code: HttpStatus.FORBIDDEN,
