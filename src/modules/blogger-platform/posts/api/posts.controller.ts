@@ -38,6 +38,7 @@ import { OptionalJwtAuthGuard } from '../../../user-accounts/guards/bearer/optio
 import { ParseObjectIdPipe } from '@nestjs/mongoose';
 import { LikeStatus } from '../domain/post.entity';
 import { LikePostCommand } from '../application/usecases/like-post.usecase';
+import { CreateCommentRequestDto } from '../../comments/dto/create-comment.request.dto';
 
 @ApiTags('Posts')
 @Controller('posts')
@@ -126,7 +127,7 @@ export class PostsController {
 
   // LIKE/DISLIKE POST
   @UseGuards(JwtAuthGuard)
-  @Post('/:postId/like-status')
+  @Put('/:postId/like-status')
   async likePost(
     @Req() req: Request,
     @Param('postId', ParseObjectIdPipe) postId: string,
@@ -169,7 +170,7 @@ export class PostsController {
   @Post('/:id/comments')
   async createComment(
     @Param('id') id: string,
-    @Body() body: { content: string },
+    @Body() dto: CreateCommentRequestDto,
     @Req() req: Request,
   ): Promise<CommentResponseDto> {
     const userInfo: { userId: string; login: string } = req.user as {
@@ -179,6 +180,6 @@ export class PostsController {
     return await this.commandBus.execute<
       CreateCommentCommand,
       CommentResponseDto
-    >(new CreateCommentCommand(id, userInfo, body.content));
+    >(new CreateCommentCommand(id, userInfo, dto));
   }
 }

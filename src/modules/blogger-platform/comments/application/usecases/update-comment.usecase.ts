@@ -5,11 +5,12 @@ import {
   Extension,
 } from '../../../../../core/exceptions/domain-exception';
 import { HttpStatus } from '@nestjs/common';
+import { CreateCommentRequestDto } from '../../dto/create-comment.request.dto';
 
 export class UpdateCommentCommand {
   constructor(
     public id: string,
-    public content: string,
+    public dto: CreateCommentRequestDto,
     public userInfo: { userId: string; login: string },
   ) {}
 }
@@ -39,7 +40,7 @@ export class UpdateCommentUseCase implements ICommandHandler<
       });
     }
     // Изменение комментария
-    comment.changeContent(command.content);
+    comment.changeContent(command.dto.content);
     return await this.commentRepo.save(comment);
   }
 }

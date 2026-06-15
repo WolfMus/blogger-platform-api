@@ -11,12 +11,13 @@ import { Comment, type CommentModelType } from '../../domain/comment.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { CommentsRepository } from '../../infrastructure/comments.repository';
 import { CommentMapper } from '../../dto/mapper/comment.response.mapper';
+import { CreateCommentRequestDto } from '../../dto/create-comment.request.dto';
 
 export class CreateCommentCommand {
   constructor(
     public postId: string,
     public userInfo: { userId: string; login: string },
-    public content: string,
+    public dto: CreateCommentRequestDto,
   ) {}
 }
 
@@ -45,7 +46,7 @@ export class CreateCommentUseCase implements ICommandHandler<
 
     // DTO для создания комментария
     const createCommentDto: CreateCommentEntityDto = {
-      content: command.content,
+      content: command.dto.content,
       userId: command.userInfo.userId,
       userLogin: command.userInfo.login,
     };

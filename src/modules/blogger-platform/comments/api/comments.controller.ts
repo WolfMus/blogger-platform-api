@@ -6,7 +6,6 @@ import {
   HttpCode,
   HttpStatus,
   Param,
-  Post,
   Put,
   Req,
   UseGuards,
@@ -29,6 +28,7 @@ import type { Request } from 'express';
 import { LikeStatus } from '../../posts/domain/post.entity';
 import { LikeCommentCommand } from '../application/usecases/like-comment.usecase';
 import { OptionalJwtAuthGuard } from '../../../user-accounts/guards/bearer/optional-jwt-auth.guard';
+import { CreateCommentRequestDto } from '../dto/create-comment.request.dto';
 
 @ApiTags('Comments')
 @Controller('comments')
@@ -67,11 +67,11 @@ export class CommentsController {
   async update(
     @Req() req: Request,
     @Param('id', ParseObjectIdPipe) id: string,
-    @Body('content') content: string,
+    @Body('content') dto: CreateCommentRequestDto,
   ): Promise<void> {
     const userInfo = req.user as { userId: string; login: string };
     return await this.commandBus.execute<UpdateCommentCommand, void>(
-      new UpdateCommentCommand(id, content, userInfo),
+      new UpdateCommentCommand(id, dto, userInfo),
     );
   }
 
@@ -92,7 +92,7 @@ export class CommentsController {
 
   // LIKE/DISLIKE COMMMENT
   @UseGuards(JwtAuthGuard)
-  @Post('/:commentId/like-status')
+  @Put('/:commentId/like-status')
   async likeComment(
     @Req() req: Request,
     @Param('commentId', ParseObjectIdPipe) commentId: string,
