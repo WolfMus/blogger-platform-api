@@ -9,6 +9,7 @@ import {
   Post,
   Put,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { CreateBlogRequestDto } from '../dto/create-blog.request.dto';
@@ -35,6 +36,8 @@ import { UpdateBlogCommand } from '../application/usecases/update-blog.usecase';
 import { DeleteBlogCommand } from '../application/usecases/delete-blog.usecase';
 import { CreatePostCommand } from '../../posts/application/usecases/create-post.usecase';
 import { BasicAuthGuard } from '../../../user-accounts/guards/basic/basic-auth.guard';
+import { OptionalJwtAuthGuard } from '../../../user-accounts/guards/bearer/optional-jwt-auth.guard';
+import type { Request } from 'express';
 
 @ApiTags('Blogs')
 @Controller('blogs')
@@ -120,15 +123,19 @@ export class BlogsController {
     description: 'Success',
   })
   @ApiNotFoundResponse({ description: 'Not Found' })
+  @UseGuards(OptionalJwtAuthGuard)
   @Get('/:id/posts')
   async getAllPostsByBlogId(
     @Query() paginationInput: PaginationInput,
     @Param('id', ParseObjectIdPipe) blogId: string,
+    @Req() req: Request,
   ): Promise<PaginatedPostResponseDto> {
+    const userInfo = req.user as { userId: string; login: string };
     await this.blogsService.findById(blogId);
     const posts = await this.postsService.findAllByBlogId(
       paginationInput,
       blogId,
+      userInfo.userId,
     );
     return posts;
   }

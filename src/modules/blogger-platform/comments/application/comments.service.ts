@@ -10,6 +10,7 @@ import {
 } from '../../../../core/exceptions/domain-exception';
 import { LikesRepository } from '../../likes/infrastructure/likes.repository';
 import { LikeStatus } from '../../posts/domain/post.entity';
+import { PostsRepository } from '../../posts/infrastructure/posts.repository';
 
 @Injectable()
 export class CommentsService {
@@ -17,6 +18,7 @@ export class CommentsService {
     private commentsRepo: CommentsRepository,
     private commentMapper: CommentMapper,
     private likesRepo: LikesRepository,
+    private postsRepo: PostsRepository,
   ) {}
 
   async findById(
@@ -59,6 +61,14 @@ export class CommentsService {
     postId: string,
     userId: string | null = null,
   ): Promise<PaginatedCommentResponseDto> {
+    const post = await this.postsRepo.findById(postId);
+    if (!post) {
+      throw new DomainException({
+        code: HttpStatus.NOT_FOUND,
+        message: 'Post not found',
+        extensions: [new Extension('Post not found', 'postId')],
+      });
+    }
     const { comments, totalCount } = await this.commentsRepo.findAllForPost(
       paginationInput,
       postId,

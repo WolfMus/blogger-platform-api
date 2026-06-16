@@ -92,6 +92,7 @@ export class PostsService {
   async findAllByBlogId(
     paginationInput: PaginationInput,
     blogId: string,
+    userId: string,
   ): Promise<PaginatedPostResponseDto> {
     // Получение постов и totalCount
     const { posts, totalCount } = await this.postsQueryRepo.findAllByBlogId(
@@ -107,6 +108,37 @@ export class PostsService {
     // Получение последних 3 лайков для каждого поста
     const likes = await this.likesRepo.findNewestLikesForPosts(postsIds);
 
+    // Проверка userId в JWT
+    if (userId) {
+      // Статусы лайков текущего пользователя
+      const statuses = await this.likesRepo.findEntityIdAndLikeStatus(
+        postsIds,
+        userId,
+      );
+
+      if (!statuses) {
+        return this.postMapper.toResponsePaginatedView(
+          posts,
+          paginationInput,
+          totalCount,
+          likes,
+        );
+      }
+
+      // Преобразование статусов в Map (массив пар -> объект)
+      const statusMap: Record<string, LikeStatus> =
+        Object.fromEntries(statuses);
+
+      // Возврат со статусами пользователей
+      return this.postMapper.toResponsePaginatedView(
+        posts,
+        paginationInput,
+        totalCount,
+        likes,
+        statusMap,
+      );
+    }
+
     // Возврат без статусов пользователя
     return this.postMapper.toResponsePaginatedView(
       posts,
@@ -114,11 +146,6 @@ export class PostsService {
       totalCount,
       likes,
     );
-    // return this.postMapper.toResponsePaginatedView(
-    //   posts,
-    //   paginationInput,
-    //   totalCount,
-    // );
   }
 
   async findById(id: string, userId: string | null): Promise<PostResponseDto> {
