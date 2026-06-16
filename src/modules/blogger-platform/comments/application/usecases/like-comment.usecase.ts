@@ -83,6 +83,7 @@ export class LikeCommentUseCase implements ICommandHandler<
         entityId: command.commentId,
         entityType: EntityType.Comment,
         userId: command.userInfo.userId,
+        userLogin: command.userInfo.login,
         likeStatus: command.dto.likeStatus,
       });
       await this.likeRepo.save(newLike);

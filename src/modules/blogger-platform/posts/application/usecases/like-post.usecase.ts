@@ -69,10 +69,6 @@ export class LikePostUseCase implements ICommandHandler<LikePostCommand, void> {
     if (command.dto.likeStatus === LikeStatus.Like) deltaLike += 1;
     if (command.dto.likeStatus === LikeStatus.Dislike) deltaDislike += 1;
 
-    /*
-     * если лайк был и приходит None => удаляем лайк
-     * иначе если лайка не было, то создаем сущность и сохраняем в бд
-     */
     if (command.dto.likeStatus === LikeStatus.None) {
       await this.likeRepo.delete(like!._id.toString());
     } else if (!like) {
@@ -80,6 +76,7 @@ export class LikePostUseCase implements ICommandHandler<LikePostCommand, void> {
         entityId: command.postId,
         entityType: EntityType.Post,
         userId: command.userInfo.userId,
+        userLogin: command.userInfo.login,
         likeStatus: command.dto.likeStatus,
       });
       await this.likeRepo.save(newLike);

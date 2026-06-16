@@ -16,15 +16,21 @@ export class Like {
   entityType: EntityType;
   @Prop({ type: String, required: true })
   userId: string;
+  @Prop({ type: String, required: true })
+  userLogin: string;
   @Prop({ type: String, enum: LikeStatus, required: true })
   likeStatus: LikeStatus;
+  @Prop({ type: Date, required: true })
+  addedAt: Date;
 
   static createInstance(dto: CreateLikeEntityDto): LikeDocument {
     const like = new this();
     like.entityId = dto.entityId;
     like.entityType = dto.entityType;
     like.userId = dto.userId;
+    like.userLogin = dto.userLogin;
     like.likeStatus = dto.likeStatus;
+    like.addedAt = new Date();
     return like as LikeDocument;
   }
 

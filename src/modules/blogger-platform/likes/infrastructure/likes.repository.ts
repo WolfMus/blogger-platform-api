@@ -43,4 +43,17 @@ export class LikesRepository {
     if (!likes) return null;
     return likes.map((like) => [like.entityId, like.likeStatus]);
   }
+
+  async findNewestLikesByEntityId(
+    entityId: string,
+  ): Promise<LikeDocument[] | null> {
+    const likes = await this.LikeModel.find({
+      entityId: entityId,
+      likeStatus: LikeStatus.Like,
+    })
+      .sort({ addedAt: -1 })
+      .limit(3);
+    if (!likes) return null;
+    return likes;
+  }
 }

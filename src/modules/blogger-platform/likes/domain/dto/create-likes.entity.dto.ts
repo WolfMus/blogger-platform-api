@@ -5,5 +5,6 @@ export class CreateLikeEntityDto {
   entityId: string;
   entityType: EntityType;
   userId: string;
+  userLogin: string;
   likeStatus: LikeStatus;
 }

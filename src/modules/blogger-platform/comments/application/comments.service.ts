@@ -37,11 +37,7 @@ export class CommentsService {
 
     const like = await this.likesRepo.findByEntityIdAndUserId(id, userId);
     if (!like) {
-      throw new DomainException({
-        code: HttpStatus.NOT_FOUND,
-        message: 'Not Found',
-        extensions: [new Extension('like and user id', 'Like Not Found')],
-      });
+      return this.commentMapper.toResponseView(comment);
     }
     return this.commentMapper.toResponseView(comment, like.likeStatus);
   }

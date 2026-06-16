@@ -67,7 +67,7 @@ export class CommentsController {
   async update(
     @Req() req: Request,
     @Param('id', ParseObjectIdPipe) id: string,
-    @Body('content') dto: CreateCommentRequestDto,
+    @Body() dto: CreateCommentRequestDto,
   ): Promise<void> {
     const userInfo = req.user as { userId: string; login: string };
     return await this.commandBus.execute<UpdateCommentCommand, void>(

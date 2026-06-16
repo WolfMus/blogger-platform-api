@@ -8,13 +8,13 @@ import { EmailService } from './applications/email.service';
     ConfigModule.forRoot({ envFilePath: '.env', isGlobal: true }),
     MailerModule.forRoot({
       transport: {
-        host: process.env.EMAIL_HOST,
+        host: process.env.ETHEREAL_HOST,
         // port: 587,
         // secure: false,
         // requireTLS: true,
         auth: {
-          user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASSWORD,
+          user: process.env.ETHEREAL_USER,
+          pass: process.env.ETHEREAL_PASSWORD,
         },
       },
       defaults: {

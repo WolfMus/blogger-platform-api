@@ -2,6 +2,7 @@ import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 import {
   ExtendedLikesInfo,
   LikeStatus,
+  NewestLikes,
   PostDocument,
 } from '../domain/post.entity';
 
@@ -33,11 +34,12 @@ export class PostResponseDto {
     likesCount: number;
     dislikesCount: number;
     myStatus: LikeStatus;
-    newestLikes: [];
+    newestLikes: NewestLikes[] | [];
   };
 
   static mapToView(
     post: PostDocument,
+    newestLikes: NewestLikes[] = [],
     likeStatus: LikeStatus = LikeStatus.None,
   ): PostResponseDto {
     return {
@@ -52,7 +54,7 @@ export class PostResponseDto {
         likesCount: post.extendedLikesInfo.likesCount,
         dislikesCount: post.extendedLikesInfo.dislikesCount,
         myStatus: likeStatus,
-        newestLikes: [],
+        newestLikes: newestLikes,
       },
     };
   }

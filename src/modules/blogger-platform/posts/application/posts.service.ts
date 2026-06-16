@@ -1,6 +1,11 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { LikeStatus, Post, type PostModelType } from '../domain/post.entity';
+import {
+  LikeStatus,
+  NewestLikes,
+  Post,
+  type PostModelType,
+} from '../domain/post.entity';
 import {
   CreatePostForBlogRequestDto,
   CreatePostRequestDto,
@@ -61,6 +66,7 @@ export class PostsService {
       posts,
       paginationInput,
       totalCount,
+      [],
       statusMap,
     );
   }
@@ -81,6 +87,7 @@ export class PostsService {
   }
 
   async findById(id: string, userId: string | null): Promise<PostResponseDto> {
+    // Существование поста
     const post = await this.postsRepo.findById(id);
     if (!post) {
       throw new DomainException({
@@ -89,16 +96,30 @@ export class PostsService {
         extensions: [new Extension('Post Not Found', 'id')],
       });
     }
-    if (!userId) return this.postMapper.toResponseView(post);
-    const like = await this.likesRepo.findByEntityIdAndUserId(id, userId);
-    if (!like) {
-      throw new DomainException({
-        code: HttpStatus.NOT_FOUND,
-        message: 'Not Found',
-        extensions: [new Extension('like and user id', 'Like Not Found')],
-      });
+    // Последние 3 лайка
+    const likes = await this.likesRepo.findNewestLikesByEntityId(id);
+    const newestLikes: NewestLikes[] =
+      likes?.map((l) => {
+        return {
+          login: l.userLogin,
+          userId: l.userId,
+          addedAt: l.addedAt,
+        };
+      }) || [];
+    // Прверка userId в JWT
+    if (!userId)
+      return this.postMapper.toResponseView(post, newestLikes, LikeStatus.None);
+    // Статус лайка для поста
+    const isLiked = await this.likesRepo.findByEntityIdAndUserId(id, userId);
+    if (!isLiked) {
+      return this.postMapper.toResponseView(post, newestLikes, LikeStatus.None);
     }
-    return this.postMapper.toResponseView(post, like.likeStatus);
+
+    return this.postMapper.toResponseView(
+      post,
+      newestLikes,
+      isLiked.likeStatus,
+    );
   }
 
   async create(
