@@ -23,6 +23,8 @@ import { PassportModule } from '@nestjs/passport';
 import { LocalStrategy } from './guards/local/local.strategy';
 import { JwtStrategy } from './guards/bearer/jwt.strategy';
 import { ResendConfirmationCodeUseCase } from './application/usecases/resend-confirmation-code.usecase';
+import { SessionsController } from './api/secutiry.controller';
+import { SecurityService } from './application/security.service';
 
 const userUseCases = [
   CreateUserUseCase,
@@ -49,7 +51,7 @@ const userUseCases = [
     }),
     PassportModule,
   ],
-  controllers: [UserController, AuthController],
+  controllers: [UserController, AuthController, SessionsController],
   providers: [
     UserService,
     UserRepository,
@@ -61,6 +63,7 @@ const userUseCases = [
     ...userUseCases,
     LocalStrategy,
     JwtStrategy,
+    SecurityService,
   ],
   exports: [UserRepository, JwtStrategy],
 })

@@ -13,6 +13,10 @@ import {
   Like,
   type LikeModelType,
 } from '../../modules/blogger-platform/likes/domain/like.entity';
+import {
+  Session,
+  type SessionModelType,
+} from '../../modules/user-accounts/domain/sessions/session.entity';
 
 @Controller('testing')
 export class TestingController {
@@ -27,6 +31,8 @@ export class TestingController {
     private UserModel: UserModelType,
     @InjectModel(Like.name)
     private LikeModel: LikeModelType,
+    @InjectModel(Session.name)
+    private SessionModel: SessionModelType,
   ) {}
   @ApiNoContentResponse()
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -37,6 +43,7 @@ export class TestingController {
     await this.CommentModel.deleteMany();
     await this.UserModel.deleteMany();
     await this.LikeModel.deleteMany();
+    await this.SessionModel.deleteMany();
     return;
   }
 }

@@ -7,19 +7,26 @@ import { CreateSessionDto } from './dto/create-session.domain.dto';
 @Schema()
 export class Session {
   @Prop({ type: String, required: true })
-  refreshToken: string;
-  @Prop({ type: String, required: true })
   userId: string;
+  @Prop({ type: String, required: true })
+  refreshToken: string;
+  @Prop({ type: String, nullable: true, required: true })
+  title: string | null; // Device name: for example Chrome 105 (received by parsing http header "user-agent")
+  @Prop({ type: String, nullable: true, required: true })
+  ip: string | null; // IP address of device during signing in
+  @Prop({ type: String, required: true })
+  deviceId: string; // Id of connected device session
   @Prop({ type: Date, required: true })
-  expiresIn: Date;
-  @Prop({ type: String, nullable: true, default: null })
-  deviceInfo: null;
+  lastActiveDate: Date; // Date of the last generating of refresh/access tokens
 
   static createInstance(dto: CreateSessionDto): SessionDocument {
     const session = new this();
-    session.refreshToken = dto.refreshToken;
     session.userId = dto.userId;
-    session.expiresIn = dto.expiresIn;
+    session.refreshToken = dto.refreshToken;
+    session.title = dto.title;
+    session.ip = dto.ip;
+    session.deviceId = dto.deviceId;
+    session.lastActiveDate = new Date();
     return session as SessionDocument;
   }
 }

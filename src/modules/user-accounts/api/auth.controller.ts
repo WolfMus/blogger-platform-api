@@ -37,12 +37,20 @@ export class AuthController {
   @Post('/login')
   async loginUser(
     @Body() dto: LoginUserRequestDto,
+    @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ): Promise<{ accessToken: string }> {
+    const ip = req.ip || null;
+    const deviceName = req.headers['user-agent'] || null;
+    const deviceInfo = {
+      ip: ip,
+      title: deviceName,
+    };
+
     const { accessToken, refreshToken } = await this.commandBus.execute<
       LoginUserCommand,
       { accessToken: string; refreshToken: string }
-    >(new LoginUserCommand(dto));
+    >(new LoginUserCommand(dto, deviceInfo));
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: true,

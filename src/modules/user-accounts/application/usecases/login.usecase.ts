@@ -17,7 +17,10 @@ import { UserRepository } from '../../infrastructure/user.repository';
 import { CryptoService } from '../crypto.service';
 
 export class LoginUserCommand {
-  constructor(public dto: LoginUserRequestDto) {}
+  constructor(
+    public dto: LoginUserRequestDto,
+    public deviceInfo: { ip: string | null; title: string | null },
+  ) {}
 }
 
 @CommandHandler(LoginUserCommand)
@@ -66,9 +69,11 @@ export class LoginUserUseCase implements ICommandHandler<LoginUserCommand> {
       { expiresIn: '24h', secret: 'refresh-token-secret' },
     );
     const createSessionDto: CreateSessionDto = {
-      refreshToken: refreshToken,
       userId: user._id.toString(),
-      expiresIn: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      refreshToken: refreshToken,
+      title: command.deviceInfo.title,
+      ip: command.deviceInfo.ip,
+      deviceId: crypto.randomUUID(),
     };
     const session = this.SessionModel.createInstance(createSessionDto);
     await this.sessionRepo.save(session);
