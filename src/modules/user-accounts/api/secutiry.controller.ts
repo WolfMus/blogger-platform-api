@@ -17,6 +17,7 @@ export class SessionsController {
   @UseGuards(JwtRefreshGuard)
   @Get()
   async getActiveSessions(@Req() req: Request) {
+    console.log('Request user:', req.user);
     const userId = (req.user as { userId: string }).userId;
     return await this.securityService.getActiveSessions(userId);
   }

@@ -25,6 +25,7 @@ import { JwtStrategy } from './guards/bearer/jwt.strategy';
 import { ResendConfirmationCodeUseCase } from './application/usecases/resend-confirmation-code.usecase';
 import { SessionsController } from './api/secutiry.controller';
 import { SecurityService } from './application/security.service';
+import { RefreshJwtStrategy } from './guards/refrresh-token/cookie.strategy';
 
 const userUseCases = [
   CreateUserUseCase,
@@ -57,13 +58,14 @@ const userUseCases = [
     UserRepository,
     UserQwRepository,
     UserMapper,
-    SessionRepository,
     AuthService,
     CryptoService,
     ...userUseCases,
     LocalStrategy,
     JwtStrategy,
+    RefreshJwtStrategy,
     SecurityService,
+    SessionRepository,
   ],
   exports: [UserRepository, JwtStrategy],
 })

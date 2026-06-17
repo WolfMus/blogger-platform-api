@@ -1,12 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import {
-  SessionDocument,
-  type SessionModelType,
-} from '../../domain/sessions/session.entity';
+import { Session, SessionDocument } from '../../domain/sessions/session.entity';
+import type { SessionModelType } from '../../domain/sessions/session.entity';
+import { InjectModel } from '@nestjs/mongoose';
 
 @Injectable()
 export class SessionRepository {
-  constructor(private sessionModel: SessionModelType) {}
+  constructor(
+    @InjectModel(Session.name)
+    private sessionModel: SessionModelType,
+  ) {}
   async save(session: SessionDocument): Promise<void> {
     await session.save();
     return;
@@ -18,5 +20,11 @@ export class SessionRepository {
       return null;
     }
     return sessions;
+  }
+
+  async isRefreshTokenExists(refreshToken: string): Promise<boolean> {
+    const session = await this.sessionModel.findOne({ refreshToken });
+    if (!session) return false;
+    return true;
   }
 }

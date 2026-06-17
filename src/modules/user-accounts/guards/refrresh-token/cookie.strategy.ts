@@ -15,15 +15,26 @@ export class RefreshJwtStrategy extends PassportStrategy(
   constructor(private sessionRepo: SessionRepository) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
-        (req: Request) => req.cookies['refreshToken'] as string,
+        (req: Request) => {
+          const token = req.cookies['refreshToken'] as string;
+          console.log(token);
+          return token;
+        },
       ]),
-      secretOrKey: 'secret-key',
+      secretOrKey: 'refresh-token-secret',
       passReqToCallback: true,
     });
   }
 
-  validate(payload: JwtPayload): { userId: string } {
-    const rT = await this.sessionRepo.findByRefreshToken(payload);
+  async validate(
+    req: Request,
+    payload: JwtPayload,
+  ): Promise<{ userId: string }> {
+    const refreshToken = req.cookies['refreshToken'] as string;
+    const rT = await this.sessionRepo.isRefreshTokenExists(refreshToken);
+    if (!rT) {
+      throw new Error('Refresh token not found for user');
+    }
     return { userId: payload.sub };
   }
 }
