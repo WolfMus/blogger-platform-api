@@ -5,6 +5,10 @@ import { SessionRepository } from '../infrastructure/sessions/session.repository
 export class SecurityService {
   constructor(private sessionRepo: SessionRepository) {}
   async getActiveSessions(userId: string) {
-    return await this.sessionRepo.findAllByUserId(userId);
+    const sessions = await this.sessionRepo.findAllByUserId(userId);
+    if (sessions === null) {
+      throw new Error('No active sessions found for the user');
+    }
+    return sessions;
   }
 }
