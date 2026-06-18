@@ -63,11 +63,17 @@ export class LoginUserUseCase implements ICommandHandler<LoginUserCommand> {
       });
     }
 
+    // create payload
+    const payload = {
+      sub: user._id.toString(),
+      login: user.login,
+    };
+
     // create refresh token and save in DB
-    const refreshToken = await this.jwtService.signAsync(
-      { sub: user._id.toString(), login: user.login },
-      { expiresIn: '24h', secret: 'refresh-token-secret' },
-    );
+    const refreshToken = await this.jwtService.signAsync(payload, {
+      expiresIn: '24h',
+      secret: 'refresh-token-secret',
+    });
     const createSessionDto: CreateSessionDto = {
       userId: user._id.toString(),
       refreshToken: refreshToken,
@@ -77,12 +83,6 @@ export class LoginUserUseCase implements ICommandHandler<LoginUserCommand> {
     };
     const session = this.SessionModel.createInstance(createSessionDto);
     await this.sessionRepo.save(session);
-
-    // create payload
-    const payload = {
-      sub: user._id.toString(),
-      login: user.login,
-    };
 
     // create access token
     const accessToken = this.jwtService.sign(payload);

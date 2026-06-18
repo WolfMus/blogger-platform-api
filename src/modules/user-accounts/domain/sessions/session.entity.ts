@@ -29,6 +29,11 @@ export class Session {
     session.lastActiveDate = new Date();
     return session as SessionDocument;
   }
+
+  updateRefreshToken(refreshToken: string): void {
+    this.refreshToken = refreshToken;
+    this.lastActiveDate = new Date();
+  }
 }
 
 export const SessionSchema = SchemaFactory.createForClass(Session);

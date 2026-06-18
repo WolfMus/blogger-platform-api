@@ -27,4 +27,26 @@ export class SessionRepository {
     if (!session) return false;
     return true;
   }
+
+  async findByuserIdAndRefreshToken(
+    userId: string,
+    oldRefreshToken: string,
+  ): Promise<SessionDocument | null> {
+    const session = await this.sessionModel.findOne({
+      userId: userId,
+      refreshToken: oldRefreshToken,
+    });
+    if (!session) {
+      return null;
+    }
+    return session;
+  }
+
+  async delete(sessionId: string): Promise<void> {
+    const sessionDeleted = await this.sessionModel.findByIdAndDelete(sessionId);
+    if (!sessionDeleted) {
+      throw new Error('Session not found <SessionRepository.delete>');
+    }
+    return;
+  }
 }

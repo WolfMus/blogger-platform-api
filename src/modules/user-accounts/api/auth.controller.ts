@@ -23,6 +23,9 @@ import { SendRecoveryCodeCommand } from '../application/usecases/send-recovery-c
 import { ResetPasswordCommand } from '../application/usecases/reset-password.usecase';
 import { LocalAuthGuard } from '../guards/local/local-auth.guard';
 import { JwtAuthGuard } from '../guards/bearer/jwt-auth.guard';
+import { JwtRefreshGuard } from '../guards/refrresh-token/refresh-token.guard';
+import { RefreshTokenCommand } from '../application/usecases/session/refresh-token.usecase';
+import { LogoutCommand } from '../application/usecases/logout.usecase';
 
 @Controller('auth')
 export class AuthController {
@@ -51,6 +54,44 @@ export class AuthController {
       LoginUserCommand,
       { accessToken: string; refreshToken: string }
     >(new LoginUserCommand(dto, deviceInfo));
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: true,
+    });
+    return { accessToken };
+  }
+
+  // LOGOUT
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JwtRefreshGuard)
+  @Post('/logout')
+  async logout(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<void> {
+    const userInfo = req.user as { userId: string; login: string };
+    const refreshToken = req.cookies['refreshToken'] as string;
+    await this.commandBus.execute<LogoutCommand, void>(
+      new LogoutCommand(userInfo.userId, refreshToken),
+    );
+    res.clearCookie('refreshToken');
+    return;
+  }
+
+  // NEW REFRESH TOKEN
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtRefreshGuard)
+  @Post('/refresh-token')
+  async refreshToken(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<{ accessToken: string }> {
+    const userInfo = req.user as { userId: string; login: string };
+    const oldRefreshToken = req.cookies['refreshToken'] as string;
+    const { accessToken, refreshToken } = await this.commandBus.execute<
+      RefreshTokenCommand,
+      { accessToken: string; refreshToken: string }
+    >(new RefreshTokenCommand(userInfo, oldRefreshToken));
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: true,

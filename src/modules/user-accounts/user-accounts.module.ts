@@ -24,8 +24,11 @@ import { LocalStrategy } from './guards/local/local.strategy';
 import { JwtStrategy } from './guards/bearer/jwt.strategy';
 import { ResendConfirmationCodeUseCase } from './application/usecases/resend-confirmation-code.usecase';
 import { SessionsController } from './api/secutiry.controller';
-import { SecurityService } from './application/security.service';
+import { SessionService } from './application/session.service';
 import { RefreshJwtStrategy } from './guards/refrresh-token/cookie.strategy';
+import { SessionMapper } from './dto/mapper/session.mapper';
+import { RefreshTokenUseCase } from './application/usecases/session/refresh-token.usecase';
+import { LogoutUseCase } from './application/usecases/logout.usecase';
 
 const userUseCases = [
   CreateUserUseCase,
@@ -36,7 +39,10 @@ const userUseCases = [
   SendRecoveryCodeUseClass,
   ResetPasswordUseCase,
   ResendConfirmationCodeUseCase,
+  LogoutUseCase,
 ];
+
+const sessionUseCases = [RefreshTokenUseCase];
 
 @Module({
   imports: [
@@ -61,11 +67,13 @@ const userUseCases = [
     AuthService,
     CryptoService,
     ...userUseCases,
+    ...sessionUseCases,
     LocalStrategy,
     JwtStrategy,
     RefreshJwtStrategy,
-    SecurityService,
+    SessionService,
     SessionRepository,
+    SessionMapper,
   ],
   exports: [UserRepository, JwtStrategy],
 })
