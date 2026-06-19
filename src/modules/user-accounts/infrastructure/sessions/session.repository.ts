@@ -49,4 +49,26 @@ export class SessionRepository {
     }
     return;
   }
+
+  async deleteSessionsByIds(sessionsIds: string[]): Promise<void> {
+    const sessionsDeleted = await this.sessionModel.deleteMany({
+      _id: { $in: sessionsIds },
+    });
+    if (!sessionsDeleted) {
+      throw new Error('Session not found <SessionRepository.delete>');
+    }
+    return;
+  }
+
+  async findByDeviceIdAndUserId(
+    deviceId: string,
+    userId: string,
+  ): Promise<SessionDocument | null> {
+    const session = await this.sessionModel.findOne({
+      deviceId: deviceId,
+      userId: userId,
+    });
+    if (!session) return null;
+    return session;
+  }
 }
