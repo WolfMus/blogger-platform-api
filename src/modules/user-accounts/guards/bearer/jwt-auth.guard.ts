@@ -5,6 +5,7 @@ import { DomainException } from '../../../../core/exceptions/domain-exception';
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
   handleRequest(err: any, user: any): any {
+    console.log('err || !user ', err || !user);
     if (err || !user) {
       throw new DomainException({
         code: HttpStatus.UNAUTHORIZED,

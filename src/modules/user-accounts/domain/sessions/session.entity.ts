@@ -10,6 +10,8 @@ export class Session {
   userId: string;
   @Prop({ type: String, required: true })
   refreshToken: string;
+  @Prop({ type: Number, required: true })
+  tokenVersion: number;
   @Prop({ type: String, nullable: true, required: true })
   title: string | null; // Device name: for example Chrome 105 (received by parsing http header "user-agent")
   @Prop({ type: String, nullable: true, required: true })
@@ -23,6 +25,7 @@ export class Session {
     const session = new this();
     session.userId = dto.userId;
     session.refreshToken = dto.refreshToken;
+    session.tokenVersion = dto.tokenVersion;
     session.title = dto.title;
     session.ip = dto.ip;
     session.deviceId = dto.deviceId;
@@ -33,6 +36,7 @@ export class Session {
   updateRefreshToken(refreshToken: string): void {
     this.refreshToken = refreshToken;
     this.lastActiveDate = new Date();
+    this.tokenVersion += 1;
   }
 }
 

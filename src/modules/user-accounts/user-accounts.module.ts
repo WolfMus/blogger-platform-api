@@ -53,7 +53,7 @@ const sessionUseCases = [RefreshTokenUseCase];
     NotificationsModule,
     JwtModule.register({
       global: true,
-      secret: 'secret-key',
+      secret: 'access-token-secret',
       signOptions: { expiresIn: '10s' },
     }),
     PassportModule,

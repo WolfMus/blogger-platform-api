@@ -5,6 +5,8 @@ export class CreateSessionDto {
   userId: string;
   @Prop({ type: String, required: true })
   refreshToken: string;
+  @Prop({ type: Number, required: true })
+  tokenVersion: number;
   @Prop({ type: String, nullable: true, required: true })
   title: string | null;
   @Prop({ type: String, nullable: true, required: true })

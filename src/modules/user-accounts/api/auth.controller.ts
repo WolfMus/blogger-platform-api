@@ -87,7 +87,11 @@ export class AuthController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ): Promise<{ accessToken: string }> {
-    const userInfo = req.user as { userId: string; login: string };
+    const userInfo = req.user as {
+      userId: string;
+      login: string;
+      tokenVersion: number;
+    };
     const oldRefreshToken = req.cookies['refreshToken'] as string;
     const { accessToken, refreshToken } = await this.commandBus.execute<
       RefreshTokenCommand,
@@ -159,7 +163,7 @@ export class AuthController {
     login: string;
     userId: string;
   }> {
-    const userId = (req.user as { userId: string; login: string }).userId;
-    return await this.userService.getMeInfo(userId);
+    const userInfo = req.user as { userId: string; login: string };
+    return await this.userService.getMeInfo(userInfo.userId);
   }
 }

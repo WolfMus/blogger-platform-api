@@ -5,7 +5,11 @@ import { JwtPayload } from '../../../../../core/types/payload.interface';
 
 export class RefreshTokenCommand {
   constructor(
-    public readonly userInfo: { userId: string; login: string },
+    public readonly userInfo: {
+      userId: string;
+      login: string;
+      tokenVersion: number;
+    },
     public readonly oldRefreshToken: string,
   ) {}
 }
@@ -36,14 +40,26 @@ export class RefreshTokenUseCase implements ICommandHandler<RefreshTokenCommand>
       sub: userId,
       login: login,
     };
-    const refreshToken = await this.jwtService.signAsync(payload, {
-      expiresIn: '24h',
-      secret: 'refresh-token-secret',
-    });
-    const accessToken = await this.jwtService.signAsync(payload, {
-      expiresIn: '24h',
-      secret: 'access-token-secret',
-    });
+    const refreshToken = await this.jwtService.signAsync(
+      {
+        ...payload,
+        deviceId: session.deviceId,
+      },
+      {
+        expiresIn: '20s',
+        secret: 'refresh-token-secret',
+      },
+    );
+    const accessToken = await this.jwtService.signAsync(
+      {
+        ...payload,
+        tokenVersion: session.tokenVersion + 1,
+      },
+      {
+        expiresIn: '10s',
+        secret: 'access-token-secret',
+      },
+    );
     session.updateRefreshToken(refreshToken);
     await this.sessionRepo.save(session);
     return { accessToken, refreshToken };

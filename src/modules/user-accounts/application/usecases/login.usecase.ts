@@ -69,23 +69,39 @@ export class LoginUserUseCase implements ICommandHandler<LoginUserCommand> {
       login: user.login,
     };
 
+    // create device id
+    const deviceId = crypto.randomUUID();
+
+    // token version
+    const tokenVersion = 0;
+
     // create refresh token and save in DB
-    const refreshToken = await this.jwtService.signAsync(payload, {
-      expiresIn: '20s',
-      secret: 'refresh-token-secret',
-    });
+    const refreshToken = await this.jwtService.signAsync(
+      {
+        ...payload,
+        deviceId: deviceId,
+      },
+      {
+        expiresIn: '20s',
+        secret: 'refresh-token-secret',
+      },
+    );
     const createSessionDto: CreateSessionDto = {
       userId: user._id.toString(),
       refreshToken: refreshToken,
+      tokenVersion: tokenVersion,
       title: command.deviceInfo.title,
       ip: command.deviceInfo.ip,
-      deviceId: crypto.randomUUID(),
+      deviceId: deviceId,
     };
     const session = this.SessionModel.createInstance(createSessionDto);
     await this.sessionRepo.save(session);
 
     // create access token
-    const accessToken = this.jwtService.sign(payload);
+    const accessToken = this.jwtService.sign({
+      ...payload,
+      tokenVersion: 0,
+    });
     return { accessToken, refreshToken };
   }
 }
