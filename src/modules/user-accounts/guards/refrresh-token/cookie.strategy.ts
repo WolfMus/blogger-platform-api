@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import type { Request } from 'express';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { SessionRepository } from '../../infrastructure/sessions/session.repository';
+import { DomainException } from '../../../../core/exceptions/domain-exception';
 interface JwtPayload {
   sub: string;
   login: string;
@@ -32,7 +33,10 @@ export class RefreshJwtStrategy extends PassportStrategy(
     const refreshToken = req.cookies['refreshToken'] as string;
     const rT = await this.sessionRepo.isRefreshTokenExists(refreshToken);
     if (!rT) {
-      throw new Error('Refresh token not found for user');
+      throw new DomainException({
+        code: HttpStatus.UNAUTHORIZED,
+        message: 'Not Found',
+      });
     }
     return { userId: payload.sub, login: payload.login };
   }
