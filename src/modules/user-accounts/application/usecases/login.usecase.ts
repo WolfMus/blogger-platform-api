@@ -71,7 +71,7 @@ export class LoginUserUseCase implements ICommandHandler<LoginUserCommand> {
 
     // create refresh token and save in DB
     const refreshToken = await this.jwtService.signAsync(payload, {
-      expiresIn: '24h',
+      expiresIn: '20s',
       secret: 'refresh-token-secret',
     });
     const createSessionDto: CreateSessionDto = {
