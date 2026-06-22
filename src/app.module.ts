@@ -9,6 +9,7 @@ import { APP_FILTER } from '@nestjs/core';
 import { HttpExceptionFilter } from './core/exceptions/filters/http-exception.filter';
 import { DomainExceptionFilter } from './core/exceptions/filters/domain-exception.filter';
 import { CqrsModule } from '@nestjs/cqrs';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -18,6 +19,14 @@ import { CqrsModule } from '@nestjs/cqrs';
       process.env.MONGODB_URI ||
         'mongodb://MrSevere:qwertyadmin@ac-4suh2hg-shard-00-00.rtpcxjn.mongodb.net:27017,ac-4suh2hg-shard-00-01.rtpcxjn.mongodb.net:27017,ac-4suh2hg-shard-00-02.rtpcxjn.mongodb.net:27017/bloger-platform?ssl=true&replicaSet=atlas-sa4lbn-shard-0&authSource=admin&appName=Cluster0',
     ),
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          ttl: 10000,
+          limit: 5,
+        },
+      ],
+    }),
     BloggerPlatformModule,
     TestingModule,
     UserAccountsModule,
