@@ -20,9 +20,9 @@ export class AuthService {
     const user = await this.userRepo.findByLoginOrEmail(loginOrEmail);
     if (!user) {
       throw new DomainException({
-        code: HttpStatus.BAD_REQUEST,
-        message: 'Not Found',
-        extensions: [new Extension('Confirmation Code Not Found', 'code')],
+        code: HttpStatus.UNAUTHORIZED,
+        message: 'Unauthorized',
+        // extensions: [new Extension('Confirmation Code Not Found', 'code')],
       });
     }
     const isPasswordValid = await this.cryptoService.compare(
