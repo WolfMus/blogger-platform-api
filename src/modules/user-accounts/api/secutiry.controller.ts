@@ -16,6 +16,7 @@ import { SessionService } from '../application/session.service';
 export class SessionsController {
   constructor(private sessionService: SessionService) {}
 
+  // ВСЕ СЕССИИ ПОЛЬЗОВАТЕЛЯ
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtRefreshGuard)
   @Get()
@@ -24,6 +25,7 @@ export class SessionsController {
     return await this.sessionService.getActiveSessions(userInfo.userId);
   }
 
+  // УДАЛИТЬ СЕССИЮ ПО ID
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtRefreshGuard)
   @Delete('/:deviceId')
@@ -38,6 +40,7 @@ export class SessionsController {
     );
   }
 
+  // УДАЛИТЬ ВСЕ СЕССИИ ПОЛЬЗОВАТЕЛЯ
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtRefreshGuard)
   @Delete()

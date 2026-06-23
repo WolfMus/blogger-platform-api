@@ -9,6 +9,7 @@ export class SessionRepository {
     @InjectModel(Session.name)
     private sessionModel: SessionModelType,
   ) {}
+
   async save(session: SessionDocument): Promise<void> {
     await session.save();
     return;
@@ -67,6 +68,14 @@ export class SessionRepository {
     const session = await this.sessionModel.findOne({
       deviceId: deviceId,
       userId: userId,
+    });
+    if (!session) return null;
+    return session;
+  }
+
+  async findByDeviceId(deviceId: string): Promise<SessionDocument | null> {
+    const session = await this.sessionModel.findOne({
+      deviceId: deviceId,
     });
     if (!session) return null;
     return session;

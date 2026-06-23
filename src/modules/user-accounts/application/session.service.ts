@@ -26,10 +26,7 @@ export class SessionService {
   }
 
   async terminateSessionByDeviceId(deviceId: string, userId: string) {
-    const session = await this.sessionRepo.findByDeviceIdAndUserId(
-      deviceId,
-      userId,
-    );
+    const session = await this.sessionRepo.findByDeviceId(deviceId);
     if (!session) {
       throw new DomainException({
         code: HttpStatus.NOT_FOUND,
@@ -37,11 +34,11 @@ export class SessionService {
         extensions: [new Extension('Session not found', deviceId)],
       });
     }
-    if (session.userId !== userId) {
+    if (session.userId.toString() !== userId) {
       throw new DomainException({
         code: HttpStatus.FORBIDDEN,
         message: `User with ID ${userId} does not have permission to delete session with device ID ${deviceId}`,
-        extensions: [new Extension('Forbidden', deviceId)],
+        extensions: [new Extension('Forbidden', 'userId')],
       });
     }
     return await this.sessionRepo.delete(session.id);
@@ -52,6 +49,7 @@ export class SessionService {
       userId,
       refreshToken,
     );
+    console.log('current session id: ', sessionCurrent!._id.toString());
     if (!sessionCurrent) {
       throw new DomainException({
         code: HttpStatus.NOT_FOUND,
@@ -68,7 +66,9 @@ export class SessionService {
       });
     }
     const sessionsIds = sessions
-      .filter((s) => s._id !== sessionCurrent._id)
+      .filter((s) => {
+        return s._id.toString() !== sessionCurrent._id.toString();
+      })
       .map((s) => s._id.toString());
     await this.sessionRepo.deleteSessionsByIds(sessionsIds);
     return;
