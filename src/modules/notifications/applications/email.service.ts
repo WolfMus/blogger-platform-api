@@ -20,7 +20,7 @@ export class EmailService {
       to: email,
       subject: 'Recovery',
       text: 'recovery',
-      html: `http://localhost:${process.env.PORT}/auth/new-password?code=${recoveryCode}`,
+      html: `https://blogger-platform-api-lake.vercel.app/auth/new-password?code=${recoveryCode}`,
     });
     console.log('Recovery code: ', recoveryCode, ' - send to', email);
   }
