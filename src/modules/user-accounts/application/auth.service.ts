@@ -1,10 +1,6 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { UserRepository } from '../infrastructure/user.repository';
 import { CryptoService } from './crypto.service';
-import {
-  DomainException,
-  Extension,
-} from '../../../core/exceptions/domain-exception';
 
 @Injectable()
 export class AuthService {
@@ -19,11 +15,12 @@ export class AuthService {
   ): Promise<{ id: string } | null> {
     const user = await this.userRepo.findByLoginOrEmail(loginOrEmail);
     if (!user) {
-      throw new DomainException({
-        code: HttpStatus.UNAUTHORIZED,
-        message: 'Unauthorized',
-        // extensions: [new Extension('Confirmation Code Not Found', 'code')],
-      });
+      return null;
+      // throw new DomainException({
+      //   code: HttpStatus.NOT_FOUND,
+      //   message: 'Not Found',
+      //   extensions: [new Extension('User Not Found', 'code')],
+      // });
     }
     const isPasswordValid = await this.cryptoService.compare(
       pass,

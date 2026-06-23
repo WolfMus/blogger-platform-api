@@ -3,12 +3,17 @@ import {
   Catch,
   ArgumentsHost,
   HttpException,
+  Logger,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { ErrorResponseDto } from '../dto/error-response.dto';
 
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
+  private readonly logger = new Logger(HttpExceptionFilter.name, {
+    timestamp: true,
+  });
+
   catch(exception: HttpException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
@@ -56,6 +61,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     }
 
     if (status === 401) {
+      this.logger.error(exception.message);
       return response.sendStatus(status);
     }
 
